@@ -1,0 +1,7 @@
+
+# Spring properties
+spring:
+  profiles:
+    active: development
+  application:
+    name: invoice-uploader

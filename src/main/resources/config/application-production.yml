@@ -1,0 +1,32 @@
+
+# Email configuration
+email:
+  host: imap.gmail.com
+  username: something@gmail.com
+  password: password
+  monitor:
+    folder: INBOX
+    days.older: 50
+  attachments.temporary.folder: ./temp
+
+# Email filter
+filter:
+  types:
+    - type: vodafone
+      from: (.*)@vodafone.pt
+      subject: (.*)fatura(.*)
+      attachments: (.*).pdf
+      name: ${receivedDate}_${originalName}.${extension}
+      folder: Vodafone
+    - type: edp
+      from: (.*)@edp.pt
+      subject: (.*)fatura(.*)
+      attachments: (.*).pdf
+      name: ${receivedDate}_${originalName}.${extension}
+      folder: Luz
+    - type: galp
+      from: (.*)@galpenergia.com
+      subject: (.*)Envio de Fatura(.*)
+      attachments: (.*).pdf
+      name: ${receivedDate}_${originalName}.${extension}
+      folder: Gas

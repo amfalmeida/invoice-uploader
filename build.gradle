@@ -1,0 +1,26 @@
+group 'com.aalmeida'
+version '1.0-SNAPSHOT'
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '3.3'
+  distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
+
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-web:1.5.2.RELEASE"
+
+    compile "org.springframework.integration:spring-integration-core:4.3.8.RELEASE"
+
+    compile "javax.mail:mail:1.5.0-b01"
+
+    testCompile "junit:junit:4.12"
+}
