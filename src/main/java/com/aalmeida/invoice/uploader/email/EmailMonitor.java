@@ -12,9 +12,7 @@ import javax.mail.event.MessageCountEvent;
 import javax.mail.event.MessageCountListener;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMultipart;
-import javax.mail.search.ComparisonTerm;
-import javax.mail.search.ReceivedDateTerm;
-import javax.mail.search.SearchTerm;
+import javax.mail.search.*;
 import javax.mail.util.SharedByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -33,18 +31,21 @@ public class EmailMonitor implements Loggable {
     private final String monitorFolder;
     private final String temporaryFolder;
     private final int daysOld;
+    private final String subjectPattern;
 
     private EmailListener listener;
     private Folder folder;
 
     public EmailMonitor(final String pImapHost, final String pUsername, final String pPassword,
-                        final String pMonitorFolder, final String pTemporaryFolder, final int pDaysOld) {
+                        final String pMonitorFolder, final String pTemporaryFolder, final int pDaysOld,
+                        final String pSubjectPattern) {
         this.imapHost = pImapHost;
         this.username = pUsername;
         this.password = pPassword;
         this.monitorFolder = pMonitorFolder;
         this.temporaryFolder = pTemporaryFolder;
         this.daysOld = pDaysOld;
+        this.subjectPattern = pSubjectPattern;
     }
 
     @PostConstruct
@@ -60,11 +61,14 @@ public class EmailMonitor implements Loggable {
         folder.open(Folder.READ_WRITE);
 
         final Date beginDate = getBeginDate();
-        final SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, beginDate);
+        final SearchTerm searchTerm = new AndTerm(
+                new ReceivedDateTerm(ComparisonTerm.GT, beginDate),
+                new SubjectTerm(subjectPattern)
+        );
         if (logger().isDebugEnabled()) {
             logger().debug("Monitoring emails with date >= {}", beginDate);
         }
-        final Message msgs[] = folder.search(newerThan);
+        final Message msgs[] = folder.search(searchTerm);
         if (logger().isTraceEnabled()) {
             logger().trace("Going to check {} emails.", msgs.length);
         }
@@ -137,7 +141,7 @@ public class EmailMonitor implements Loggable {
             email.setReceivedDate(message.getReceivedDate().getTime());
 
             message.setFlag(Flags.Flag.SEEN, true);
-            message.setFlag(Flags.Flag.FLAGGED, true);
+            //message.setFlag(Flags.Flag.FLAGGED, true);
 
             if (logger().isTraceEnabled()) {
                 logger().trace("Email fetched. email={}", email);

@@ -8,11 +8,11 @@ public abstract class AbstractTask {
         next = pNext;
     }
 
-    abstract protected void process(final Invoice invoice);
+    abstract protected void handleRequest(final Invoice invoice);
 
-    void processNext(final Invoice invoice) {
+    void handleNext(final Invoice invoice) {
         if (next != null) {
-            next.process(invoice);
+            next.handleRequest(invoice);
         }
     }
 }

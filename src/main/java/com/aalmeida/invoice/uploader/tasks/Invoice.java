@@ -7,13 +7,11 @@ import java.io.File;
 public class Invoice {
 
     private final File file;
-    private final String namePattern;
     private final FilterProperties.EmailFilter emailFilter;
     private final long receivedDate;
 
-    public Invoice(File file, String namePattern, FilterProperties.EmailFilter emailFilter, long receivedDate) {
+    public Invoice(File file, FilterProperties.EmailFilter emailFilter, long receivedDate) {
         this.file = file;
-        this.namePattern = namePattern;
         this.emailFilter = emailFilter;
         this.receivedDate = receivedDate;
     }
@@ -22,11 +20,7 @@ public class Invoice {
         return file;
     }
 
-    String getNamePattern() {
-        return namePattern;
-    }
-
-    public FilterProperties.EmailFilter getEmailFilter() {
+    FilterProperties.EmailFilter getEmailFilter() {
         return emailFilter;
     }
 
@@ -38,7 +32,6 @@ public class Invoice {
     public String toString() {
         return "Invoice{" +
                 "file=" + file +
-                ", namePattern='" + namePattern + '\'' +
                 ", emailFilter=" + emailFilter +
                 ", receivedDate=" + receivedDate +
                 '}';

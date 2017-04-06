@@ -4,12 +4,14 @@ import com.aalmeida.invoice.uploader.email.EmailListener;
 import com.aalmeida.invoice.uploader.email.EmailMonitor;
 import com.aalmeida.invoice.uploader.tasks.Invoice;
 import com.aalmeida.invoice.uploader.tasks.StorageTask;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
+import java.util.stream.Stream;
 
 @Configuration
 public class ApplicationConfig {
@@ -24,6 +26,8 @@ public class ApplicationConfig {
     private String emailMonitorFolder;
     @Value("${email.monitor.days.older}")
     private int emailMonitorDaysOld;
+    @Value("${email.monitor.subject.pattern}")
+    private String emailMonitorSubjectPattern;
     @Value("${email.attachments.temporary.folder}")
     private String emailAttachmentsTemporaryFolder;
 
@@ -35,35 +39,31 @@ public class ApplicationConfig {
     @Bean
     @Autowired
     public EmailListener emailListener(final FilterProperties filterProperties, final StorageTask storageTask) {
-        final EmailListener emailListener = email -> {
+        return email -> {
             if (filterProperties == null || filterProperties.getTypes() == null) {
                 return;
             }
-            for (final FilterProperties.EmailFilter filter : filterProperties.getTypes()) {
+            filterProperties.getTypes().forEach(filter -> {
                 if (email.getFromAddress().matches(filter.getFrom())
-                        || email.getSubject().matches(filter.getSubject())) {
-                    if (email.getAttachments() == null) {
-                        continue;
-                    }
-                    for (final File file : email.getAttachments()) {
-                        if (file.getName().matches(filter.getAttachments())) {
-                            storageTask.process(new Invoice(file, filter.getFileName(), filter,
-                                    email.getReceivedDate()));
-                        } else {
-                            file.delete();
-                        }
-                    }
+                        && email.getSubject().matches(filter.getSubject())) {
+                    email.getAttachments()
+                            .forEach(file -> {
+                                if (file.getName().matches(filter.getAttachments())) {
+                                    storageTask.handleRequest(new Invoice(file, filter, email.getReceivedDate()));
+                                } else {
+                                    file.delete();
+                                }
+                            });
                 }
-            }
+            });
         };
-        return emailListener;
     }
 
     @Bean
     @Autowired
     public EmailMonitor emailMonitor(final EmailListener emailListener) {
         final EmailMonitor emailMonitor = new EmailMonitor(emailHost, emailUsername, emailPassword, emailMonitorFolder,
-                emailAttachmentsTemporaryFolder, emailMonitorDaysOld);
+                emailAttachmentsTemporaryFolder, emailMonitorDaysOld, emailMonitorSubjectPattern);
         emailMonitor.setListener(emailListener);
         return emailMonitor;
     }
