@@ -49,6 +49,8 @@ public class ApplicationConfig {
                         if (file.getName().matches(filter.getAttachments())) {
                             storageTask.process(new Invoice(file, filter.getFileName(), filter,
                                     email.getReceivedDate()));
+                        } else {
+                            file.delete();
                         }
                     }
                 }
