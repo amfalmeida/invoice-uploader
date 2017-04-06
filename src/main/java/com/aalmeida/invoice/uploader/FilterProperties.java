@@ -27,8 +27,10 @@ public class FilterProperties {
         private String from;
         private String subject;
         private String attachments;
-        private String name;
+        private String fileName;
+        private String fileMimeType;
         private String folder;
+        private String folderId;
 
         public String getType() {
             return type;
@@ -62,12 +64,20 @@ public class FilterProperties {
             this.attachments = attachments;
         }
 
-        public String getName() {
-            return name;
+        public String getFileName() {
+            return fileName;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public String getFileMimeType() {
+            return fileMimeType;
+        }
+
+        public void setFileMimeType(String fileMimeType) {
+            this.fileMimeType = fileMimeType;
         }
 
         public String getFolder() {
@@ -78,6 +88,14 @@ public class FilterProperties {
             this.folder = folder;
         }
 
+        public String getFolderId() {
+            return folderId;
+        }
+
+        public void setFolderId(String folderId) {
+            this.folderId = folderId;
+        }
+
         @Override
         public String toString() {
             return "EmailFilter{" +
@@ -85,8 +103,10 @@ public class FilterProperties {
                     ", from='" + from + '\'' +
                     ", subject='" + subject + '\'' +
                     ", attachments='" + attachments + '\'' +
-                    ", name='" + name + '\'' +
+                    ", fileName='" + fileName + '\'' +
+                    ", fileMimeType='" + fileMimeType + '\'' +
                     ", folder='" + folder + '\'' +
+                    ", folderId='" + folderId + '\'' +
                     '}';
         }
     }

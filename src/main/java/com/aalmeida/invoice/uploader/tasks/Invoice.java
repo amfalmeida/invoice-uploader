@@ -1,18 +1,20 @@
 package com.aalmeida.invoice.uploader.tasks;
 
+import com.aalmeida.invoice.uploader.FilterProperties;
+
 import java.io.File;
 
 public class Invoice {
 
     private final File file;
     private final String namePattern;
-    private final String folder;
+    private final FilterProperties.EmailFilter emailFilter;
     private final long receivedDate;
 
-    public Invoice(File file, String namePattern, String folder, long receivedDate) {
+    public Invoice(File file, String namePattern, FilterProperties.EmailFilter emailFilter, long receivedDate) {
         this.file = file;
         this.namePattern = namePattern;
-        this.folder = folder;
+        this.emailFilter = emailFilter;
         this.receivedDate = receivedDate;
     }
 
@@ -24,8 +26,8 @@ public class Invoice {
         return namePattern;
     }
 
-    String getFolder() {
-        return folder;
+    public FilterProperties.EmailFilter getEmailFilter() {
+        return emailFilter;
     }
 
     long getReceivedDate() {
@@ -37,7 +39,7 @@ public class Invoice {
         return "Invoice{" +
                 "file=" + file +
                 ", namePattern='" + namePattern + '\'' +
-                ", folder='" + folder + '\'' +
+                ", emailFilter=" + emailFilter +
                 ", receivedDate=" + receivedDate +
                 '}';
     }

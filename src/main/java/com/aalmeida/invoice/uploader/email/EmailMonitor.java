@@ -1,10 +1,9 @@
 package com.aalmeida.invoice.uploader.email;
 
+import com.aalmeida.invoice.uploader.Loggable;
 import com.aalmeida.utils.FileUtils;
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.util.BASE64DecoderStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -21,9 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class EmailMonitor {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(EmailMonitor.class);
+public class EmailMonitor implements Loggable {
 
     private final static String PROTOCOL = "imaps";
 
@@ -64,12 +61,12 @@ public class EmailMonitor {
 
         final Date beginDate = getBeginDate();
         final SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, beginDate);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Monitoring emails with date >= {}", beginDate);
+        if (logger().isDebugEnabled()) {
+            logger().debug("Monitoring emails with date >= {}", beginDate);
         }
         final Message msgs[] = folder.search(newerThan);
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Going to check {} emails.", msgs.length);
+        if (logger().isTraceEnabled()) {
+            logger().trace("Going to check {} emails.", msgs.length);
         }
         for (final Message msg : msgs) {
             processEmail(msg);
@@ -81,8 +78,8 @@ public class EmailMonitor {
             @Override
             public void messagesAdded(MessageCountEvent pEvent) {
                 Message[] msgs = pEvent.getMessages();
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("Found {} emails.", msgs.length);
+                if (logger().isTraceEnabled()) {
+                    logger().trace("Found {} emails.", msgs.length);
                 }
                 for (final Message msg : msgs) {
                     processEmail(msg);
@@ -142,14 +139,14 @@ public class EmailMonitor {
             message.setFlag(Flags.Flag.SEEN, true);
             message.setFlag(Flags.Flag.FLAGGED, true);
 
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Email fetched. email={}", email);
+            if (logger().isTraceEnabled()) {
+                logger().trace("Email fetched. email={}", email);
             }
             if (listener != null) {
                 listener.emailReceived(email);
             }
         } catch (MessagingException | IOException e) {
-            LOGGER.error("Failed to process the email.", e);
+            logger().error("Failed to process the email.", e);
         }
     }
 

@@ -4,6 +4,7 @@ import com.aalmeida.invoice.uploader.email.EmailListener;
 import com.aalmeida.invoice.uploader.email.EmailMonitor;
 import com.aalmeida.invoice.uploader.tasks.Invoice;
 import com.aalmeida.invoice.uploader.tasks.StorageTask;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,17 +28,13 @@ public class ApplicationConfig {
     private String emailAttachmentsTemporaryFolder;
 
     @Bean
-    public StorageTask storageTask() {
-        return new StorageTask();
-    }
-
-    @Bean
     public FilterProperties filterProperties() {
         return new FilterProperties();
     }
 
     @Bean
-    public EmailListener emailListener(FilterProperties filterProperties) {
+    @Autowired
+    public EmailListener emailListener(final FilterProperties filterProperties, final StorageTask storageTask) {
         final EmailListener emailListener = email -> {
             if (filterProperties == null || filterProperties.getTypes() == null) {
                 return;
@@ -50,7 +47,7 @@ public class ApplicationConfig {
                     }
                     for (final File file : email.getAttachments()) {
                         if (file.getName().matches(filter.getAttachments())) {
-                            storageTask().process(new Invoice(file, filter.getName(), filter.getFolder(),
+                            storageTask.process(new Invoice(file, filter.getFileName(), filter,
                                     email.getReceivedDate()));
                         }
                     }
@@ -61,10 +58,11 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public EmailMonitor emailMonitor() {
+    @Autowired
+    public EmailMonitor emailMonitor(final EmailListener emailListener) {
         final EmailMonitor emailMonitor = new EmailMonitor(emailHost, emailUsername, emailPassword, emailMonitorFolder,
                 emailAttachmentsTemporaryFolder, emailMonitorDaysOld);
-        emailMonitor.setListener(emailListener(filterProperties()));
+        emailMonitor.setListener(emailListener);
         return emailMonitor;
     }
 }

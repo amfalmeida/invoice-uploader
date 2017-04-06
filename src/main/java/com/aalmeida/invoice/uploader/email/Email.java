@@ -1,6 +1,7 @@
 package com.aalmeida.invoice.uploader.email;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 public class Email {
@@ -47,7 +48,7 @@ public class Email {
         return "Email{" +
                 "subject='" + subject + '\'' +
                 ", fromAddress='" + fromAddress + '\'' +
-                ", receivedDate=" + receivedDate +
+                ", receivedDate=" + new Date(receivedDate) +
                 ", attachments=" + attachments +
                 '}';
     }

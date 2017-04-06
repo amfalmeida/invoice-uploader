@@ -1,13 +1,22 @@
 group 'com.aalmeida'
 version '1.0-SNAPSHOT'
 
-task wrapper(type: Wrapper) {
-  gradleVersion = '3.3'
-  distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+buildscript {
+    ext {
+        springBootVersion = '1.5.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
 }
 
 apply plugin: 'java'
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 
 sourceCompatibility = 1.8
 
@@ -16,11 +25,25 @@ repositories {
 }
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-web:1.5.2.RELEASE"
-
+    compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     compile "org.springframework.integration:spring-integration-core:4.3.8.RELEASE"
+
+    compile 'com.google.api-client:google-api-client:1.22.0'
+    compile 'com.google.oauth-client:google-oauth-client-jetty:1.22.0'
+    compile 'com.google.apis:google-api-services-drive:v3-rev67-1.22.0'
 
     compile "javax.mail:mail:1.5.0-b01"
 
     testCompile "junit:junit:4.12"
+}
+
+// https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html
+springBoot {
+    executable = true
+    embeddedLaunchScriptProperties = [
+            initInfoDescription: project.description,
+            initInfoShortDescription: project.name,
+            initInfoProvides: jar.baseName,
+            mode: 'service'
+        ]
 }
