@@ -22,7 +22,7 @@ email:
 # Email filter
 filter:
   types:
-    - type: communications
+    - type: 3play
       from: (.*)@vodafone.pt
       subject: (.*)fatura(.*)
       attachments: (.*).pdf

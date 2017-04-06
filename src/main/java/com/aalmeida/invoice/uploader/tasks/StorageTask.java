@@ -30,7 +30,7 @@ public class StorageTask extends AbstractTask implements Loggable {
     @Override
     public void handleRequest(final Invoice invoice) {
         inbound.add(invoice);
-        logger().debug("Add invoice to inbound. invoice={}, inbound=%s", invoice, inbound.size());
+        logger().debug("Add invoice to inbound. invoice={}, inbound={}", invoice, inbound.size());
         if (inbound.size() >= MAX_INBOUND) {
             for (int i = 0; i < MAX_INBOUND; i++){
                 tasks.add(new StorageTaskWorker(drive, inbound.poll()));
