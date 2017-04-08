@@ -17,14 +17,6 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 
-
-jar {
-    baseName = project.name
-    version = project.version
-    exclude "**/config"
-    exclude "**/service.conf"
-}
-
 repositories {
     mavenCentral()
 }
@@ -43,6 +35,13 @@ dependencies {
 
     testCompile "org.springframework.boot:spring-boot-starter-test"
     testCompile "junit:junit:4.12"
+}
+
+jar {
+    baseName = project.name
+    version = project.version
+    exclude "**/config"
+    exclude "**/service.conf"
 }
 
 // https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html
