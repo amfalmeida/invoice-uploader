@@ -52,6 +52,7 @@ public class EmailMonitor implements Loggable {
     public void init() throws Exception {
         final Properties properties = new Properties();
         properties.setProperty("mail.store.protocol", PROTOCOL);
+        properties.setProperty("mail.debug", Boolean.toString(true));
 
         final Session session = Session.getInstance(properties, null);
 
@@ -60,15 +61,12 @@ public class EmailMonitor implements Loggable {
         folder = store.getFolder(monitorFolder);
         folder.open(Folder.READ_WRITE);
 
-        final Date beginDate = getBeginDate();
-        final SearchTerm searchTerm = new AndTerm(
-                new ReceivedDateTerm(ComparisonTerm.GT, beginDate),
-                new SubjectTerm(subjectPattern)
-        );
+        final Date beginDate = getBeginDate(daysOld);
+
         if (logger().isDebugEnabled()) {
             logger().debug("Monitoring emails with date >= {}", beginDate);
         }
-        final Message msgs[] = folder.search(searchTerm);
+        final Message msgs[] = folder.search(buildSearchTerms(beginDate, subjectPattern));
         if (logger().isTraceEnabled()) {
             logger().trace("Going to check {} emails.", msgs.length);
         }
@@ -126,6 +124,28 @@ public class EmailMonitor implements Loggable {
         folder.close(true);
     }
 
+    private SearchTerm buildSearchTerms(final Date beginDate, final String subjectSearchPattern) {
+        final SearchTerm subjectMatch = new SearchTerm() {
+            public boolean match(Message message) {
+                try {
+                    if (message == null || message.getSubject() == null) {
+                        return false;
+                    }
+                    if (message.getSubject().matches(subjectSearchPattern)) {
+                        return true;
+                    }
+                } catch (MessagingException ex) {
+                    logger().error("Failed to search messages.", ex);
+                }
+                return false;
+            }
+        };
+        return new AndTerm(
+                new ReceivedDateTerm(ComparisonTerm.GT, beginDate),
+                subjectMatch
+        );
+    }
+
     private void processEmail(final Message message) {
         try {
             if (message == null) {
@@ -141,7 +161,7 @@ public class EmailMonitor implements Loggable {
             email.setReceivedDate(message.getReceivedDate().getTime());
 
             message.setFlag(Flags.Flag.SEEN, true);
-            //message.setFlag(Flags.Flag.FLAGGED, true);
+            message.setFlag(Flags.Flag.FLAGGED, true);
 
             if (logger().isTraceEnabled()) {
                 logger().trace("Email fetched. email={}", email);
@@ -184,7 +204,7 @@ public class EmailMonitor implements Loggable {
         return null;
     }
 
-    private Date getBeginDate() {
+    private Date getBeginDate(final int daysOld) {
         Calendar calBegin = Calendar.getInstance();
         calBegin.add(Calendar.DAY_OF_YEAR, -daysOld);
         return calBegin.getTime();

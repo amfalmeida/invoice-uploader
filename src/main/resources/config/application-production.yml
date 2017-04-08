@@ -17,6 +17,7 @@ email:
   monitor:
     folder: "[Gmail]/All Mail"
     days.older: 50
+    subject.pattern: (.*)
   attachments.temporary.folder: ./temp
 
 # Email filter
