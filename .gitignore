@@ -83,3 +83,4 @@ application-development.yml
 /temp/*
 .store
 /gradle
+/log
