@@ -52,7 +52,7 @@ public class EmailMonitor implements Loggable {
     public void init() throws Exception {
         final Properties properties = new Properties();
         properties.setProperty("mail.store.protocol", PROTOCOL);
-        properties.setProperty("mail.debug", Boolean.toString(true));
+        //properties.setProperty("mail.debug", Boolean.toString(true));
 
         final Session session = Session.getInstance(properties, null);
 

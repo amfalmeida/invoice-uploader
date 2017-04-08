@@ -14,7 +14,7 @@ import java.io.File;
 import java.util.stream.Stream;
 
 @Configuration
-public class ApplicationConfig {
+public class ApplicationConfig implements Loggable {
 
     @Value("${email.host}")
     private String emailHost;
@@ -40,6 +40,7 @@ public class ApplicationConfig {
     @Autowired
     public EmailListener emailListener(final FilterProperties filterProperties, final StorageTask storageTask) {
         return email -> {
+            logger().trace("Checking email. email={}", email);
             if (filterProperties == null || filterProperties.getTypes() == null) {
                 return;
             }

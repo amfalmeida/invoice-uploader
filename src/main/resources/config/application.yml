@@ -3,5 +3,7 @@
 spring:
   profiles:
     active: development
+  main:
+    web-environment: false
   application:
     name: invoice-uploader

@@ -7,8 +7,6 @@ buildscript {
     }
     repositories {
         mavenCentral()
-        maven { url "https://repo.spring.io/snapshot" }
-        maven { url "https://repo.spring.io/milestone" }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -16,13 +14,23 @@ buildscript {
 }
 
 apply plugin: 'java'
+apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 
-sourceCompatibility = 1.8
+
+jar {
+    baseName = project.name
+    version = project.version
+    exclude "**/config"
+    exclude "**/service.conf"
+}
 
 repositories {
     mavenCentral()
 }
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
@@ -33,6 +41,7 @@ dependencies {
 
     compile "javax.mail:mail:1.5.0-b01"
 
+    testCompile "org.springframework.boot:spring-boot-starter-test"
     testCompile "junit:junit:4.12"
 }
 
@@ -40,13 +49,21 @@ dependencies {
 springBoot {
     executable = true
     backupSource = false
-    embeddedLaunchScriptProperties = [
-            initInfoDescription: project.description,
-            initInfoShortDescription: project.name,
-            initInfoProvides: jar.baseName,
-            mode: 'service'
-        ]
 }
-bootRepackage {
-    mainClass = 'com.aalmeida.invoice.uploader.Application'
+
+task deploy(dependsOn: build) {
+    delete 'build/deploy'
+    copy {
+        from jar
+        into 'build/deploy/'
+    }
+    copy {
+        from 'src/main/resources/service.conf'
+        into 'build/deploy/'
+        rename 'service', project.name + '-' + project.version
+    }
+    copy {
+        from 'src/main/resources/config'
+        into 'build/deploy/config'
+    }
 }
