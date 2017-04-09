@@ -35,6 +35,8 @@ dependencies {
 
     compile "org.apache.pdfbox:pdfbox:2.0.5"
 
+    compile "commons-io:commons-io:2.5"
+
     testCompile "org.springframework.boot:spring-boot-starter-test"
     testCompile "org.jmockit:jmockit:1.31"
     testCompile "junit:junit:4.12"

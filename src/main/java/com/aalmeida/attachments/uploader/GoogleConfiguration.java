@@ -1,6 +1,6 @@
-package com.aalmeida.invoice.uploader;
+package com.aalmeida.attachments.uploader;
 
-import com.aalmeida.invoice.uploader.tasks.StorageTask;
+import com.aalmeida.attachments.uploader.tasks.StorageTask;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;

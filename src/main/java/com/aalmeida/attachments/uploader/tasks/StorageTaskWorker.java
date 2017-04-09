@@ -1,8 +1,8 @@
-package com.aalmeida.invoice.uploader.tasks;
+package com.aalmeida.attachments.uploader.tasks;
 
-import com.aalmeida.invoice.uploader.Constants;
-import com.aalmeida.invoice.uploader.FilterProperties;
-import com.aalmeida.invoice.uploader.Loggable;
+import com.aalmeida.attachments.uploader.FilterProperties;
+import com.aalmeida.attachments.uploader.Constants;
+import com.aalmeida.attachments.uploader.Loggable;
 import com.aalmeida.utils.DateUtils;
 import com.aalmeida.utils.FileUtils;
 import com.google.api.client.http.FileContent;
@@ -14,10 +14,8 @@ import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.slf4j.MDC;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 

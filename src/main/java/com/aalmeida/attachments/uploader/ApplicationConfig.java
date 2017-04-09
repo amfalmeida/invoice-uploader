@@ -1,9 +1,9 @@
-package com.aalmeida.invoice.uploader;
+package com.aalmeida.attachments.uploader;
 
-import com.aalmeida.invoice.uploader.email.EmailListener;
-import com.aalmeida.invoice.uploader.email.EmailMonitor;
-import com.aalmeida.invoice.uploader.tasks.Invoice;
-import com.aalmeida.invoice.uploader.tasks.StorageTask;
+import com.aalmeida.attachments.uploader.email.EmailMonitor;
+import com.aalmeida.attachments.uploader.tasks.Invoice;
+import com.aalmeida.attachments.uploader.tasks.StorageTask;
+import com.aalmeida.attachments.uploader.email.EmailListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

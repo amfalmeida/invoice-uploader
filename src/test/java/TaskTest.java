@@ -1,7 +1,8 @@
-import com.aalmeida.invoice.uploader.FilterProperties;
-import com.aalmeida.invoice.uploader.tasks.Invoice;
-import com.aalmeida.invoice.uploader.tasks.StorageTask;
+import com.aalmeida.attachments.uploader.FilterProperties;
+import com.aalmeida.attachments.uploader.tasks.Invoice;
+import com.aalmeida.attachments.uploader.tasks.StorageTask;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.FileList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,7 +11,11 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TaskTest {
@@ -18,25 +23,37 @@ public class TaskTest {
     @Mock
     private Drive drive;
     @Spy
-    private Drive.Files driveFiles;
-    @Spy
     private Invoice invoice;
-    @Spy
-    private FilterProperties.EmailFilter emailFilter;
 
     @Test
     public void test_StorageTask() {
         try {
-            Mockito.when(drive.files().get(Mockito.anyString()).execute()).thenReturn(driveFiles);
+            ClassLoader classLoader = getClass().getClassLoader();
 
-            Mockito.doReturn(true).when(invoice).getFiles();
+            final List<java.io.File> files = new ArrayList<>();
+            for (int i = 1; i < 4; i++) {
+                files.add(new File(classLoader.getResource(String.format("invoices/invoice_page_%s.pdf", i)).toURI()));
+            }
+
+            final FilterProperties.EmailFilter emailFilter = new FilterProperties.EmailFilter();
+            //emailFilter.setAttachments("(?i)(.*).pdf");
+            emailFilter.setFileMimeType("application/pdf");
+            emailFilter.setFileName("${receivedDate}_${originalName}.${extension}");
+            emailFilter.setFolderId("0B9cL05zbIkdScnBOdGFaeXI4bkU");
+            emailFilter.setFolder("Test");
+            emailFilter.setMerge(true);
+            emailFilter.setMergeOrder(FilterProperties.EmailFilter.MergeOrder.ASC);
+
+            Mockito.doReturn(files).when(invoice).getFiles();
             Mockito.doReturn(emailFilter).when(invoice).getEmailFilter();
             Mockito.doReturn(System.currentTimeMillis()).when(invoice).getReceivedDate();
 
             StorageTask storageTask = new StorageTask(drive);
             storageTask.handleRequest(invoice);
 
-        } catch (IOException e) {
+            Mockito.when(drive.files().list().execute()).thenReturn(new FileList());
+
+        } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
         }

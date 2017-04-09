@@ -1,6 +1,6 @@
-package com.aalmeida.invoice.uploader.tasks;
+package com.aalmeida.attachments.uploader.tasks;
 
-import com.aalmeida.invoice.uploader.FilterProperties;
+import com.aalmeida.attachments.uploader.FilterProperties;
 
 import java.io.File;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.aalmeida.invoice.uploader;
+package com.aalmeida.attachments.uploader;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
