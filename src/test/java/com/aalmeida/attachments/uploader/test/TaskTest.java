@@ -1,3 +1,5 @@
+package com.aalmeida.attachments.uploader.test;
+
 import com.aalmeida.attachments.uploader.FilterProperties;
 import com.aalmeida.attachments.uploader.tasks.Invoice;
 import com.aalmeida.attachments.uploader.tasks.StorageTask;
@@ -22,6 +24,8 @@ public class TaskTest {
 
     @Mock
     private Drive drive;
+    @Mock
+    private FileList fileList;
     @Spy
     private Invoice invoice;
 
@@ -30,9 +34,9 @@ public class TaskTest {
         try {
             ClassLoader classLoader = getClass().getClassLoader();
 
-            final List<java.io.File> files = new ArrayList<>();
+            final List<java.io.File> dummyFiles = new ArrayList<>();
             for (int i = 1; i < 4; i++) {
-                files.add(new File(classLoader.getResource(String.format("invoices/invoice_page_%s.pdf", i)).toURI()));
+                dummyFiles.add(new File(classLoader.getResource(String.format("invoices/invoice_page_%s.pdf", i)).toURI()));
             }
 
             final FilterProperties.EmailFilter emailFilter = new FilterProperties.EmailFilter();
@@ -44,14 +48,14 @@ public class TaskTest {
             emailFilter.setMerge(true);
             emailFilter.setMergeOrder(FilterProperties.EmailFilter.MergeOrder.ASC);
 
-            Mockito.doReturn(files).when(invoice).getFiles();
+            Mockito.doReturn(dummyFiles).when(invoice).getFiles();
             Mockito.doReturn(emailFilter).when(invoice).getEmailFilter();
             Mockito.doReturn(System.currentTimeMillis()).when(invoice).getReceivedDate();
 
             StorageTask storageTask = new StorageTask(drive);
             storageTask.handleRequest(invoice);
 
-            Mockito.when(drive.files().list().execute()).thenReturn(new FileList());
+            Mockito.when(drive.files().list().execute()).thenReturn(fileList);
 
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();

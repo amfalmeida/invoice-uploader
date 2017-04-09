@@ -55,6 +55,10 @@ springBoot {
     backupSource = false
 }
 
+test {
+    exclude '**/*'
+}
+
 task deploy(dependsOn: build) {
     delete 'build/deploy'
     copy {
