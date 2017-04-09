@@ -48,9 +48,7 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
                 filename = getFileName(orderedFiles.get(0), invoice.getEmailFilter().getFileName(),
                         invoice.getReceivedDate());
 
-                mergeFiles(orderedFiles, filename);
-
-                fileToUpload = new java.io.File(filename);
+                fileToUpload = mergeFiles(orderedFiles, filename);
             } else {
                 fileToUpload = invoice.getFiles().get(0);
                 filename = getFileName(fileToUpload, invoice.getEmailFilter().getFileName(),
@@ -127,17 +125,16 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
                 .execute();
     }
 
-    private String mergeFiles(final List<java.io.File> files, final String finalName)
-            throws IOException {
-        final String path = String.format("%s%s%s", files.get(0).getParent(), "/", finalName);
+    private java.io.File mergeFiles(final List<java.io.File> files, final String finalName) throws IOException {
+        final java.io.File mergedFile = new java.io.File (String.format("%s%s%s", files.get(0).getParent(),
+                java.io.File.separator, finalName));
         final PDFMergerUtility pdfMergerUtility = new PDFMergerUtility();
         for (final java.io.File file : files) {
             pdfMergerUtility.addSource(file);
         }
-        pdfMergerUtility.setDestinationFileName(path);
-        //pdfMergerUtility.setDestinationFileName(finalName);
+        pdfMergerUtility.setDestinationFileName(mergedFile.getAbsolutePath());
         pdfMergerUtility.mergeDocuments(MemoryUsageSetting.setupMainMemoryOnly());
-        return path;
+        return mergedFile;
     }
 
     private String getFileName(final java.io.File file, final String namePattern, final long receivedDate) {
