@@ -3,35 +3,51 @@ package com.aalmeida.invoice.uploader.tasks;
 import com.aalmeida.invoice.uploader.FilterProperties;
 
 import java.io.File;
+import java.util.List;
 
 public class Invoice {
 
-    private final File file;
-    private final FilterProperties.EmailFilter emailFilter;
-    private final long receivedDate;
+    private List<File> files;
+    private FilterProperties.EmailFilter emailFilter;
+    private long receivedDate;
 
-    public Invoice(File file, FilterProperties.EmailFilter emailFilter, long receivedDate) {
-        this.file = file;
+    public Invoice() {
+    }
+
+    public Invoice(List<File> files, FilterProperties.EmailFilter emailFilter, long receivedDate) {
+        this.files = files;
         this.emailFilter = emailFilter;
         this.receivedDate = receivedDate;
     }
 
-    File getFile() {
-        return file;
+    public List<File> getFiles() {
+        return files;
     }
 
-    FilterProperties.EmailFilter getEmailFilter() {
+    public void setFiles(List<File> files) {
+        this.files = files;
+    }
+
+    public FilterProperties.EmailFilter getEmailFilter() {
         return emailFilter;
     }
 
-    long getReceivedDate() {
+    public void setEmailFilter(FilterProperties.EmailFilter emailFilter) {
+        this.emailFilter = emailFilter;
+    }
+
+    public long getReceivedDate() {
         return receivedDate;
+    }
+
+    public void setReceivedDate(long receivedDate) {
+        this.receivedDate = receivedDate;
     }
 
     @Override
     public String toString() {
         return "Invoice{" +
-                "file=" + file +
+                "files=" + files +
                 ", emailFilter=" + emailFilter +
                 ", receivedDate=" + receivedDate +
                 '}';

@@ -1,6 +1,7 @@
 package com.aalmeida.invoice.uploader.tasks;
 
 import com.aalmeida.invoice.uploader.Constants;
+import com.aalmeida.invoice.uploader.FilterProperties;
 import com.aalmeida.invoice.uploader.Loggable;
 import com.aalmeida.utils.DateUtils;
 import com.aalmeida.utils.FileUtils;
@@ -8,10 +9,15 @@ import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import org.apache.pdfbox.io.MemoryUsageSetting;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.slf4j.MDC;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 public class StorageTaskWorker implements Loggable, Callable<Invoice> {
@@ -19,7 +25,7 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
     private Drive drive;
     private Invoice invoice;
 
-    StorageTaskWorker(Drive pDrive, final Invoice pInvoice) {
+    StorageTaskWorker(final Drive pDrive, final Invoice pInvoice) {
         drive = pDrive;
         invoice = pInvoice;
     }
@@ -29,15 +35,32 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
         try {
             MDC.put(Constants.Logger.MDC_KEY_TYPE, invoice.getEmailFilter().getType());
 
-            final String filename = getFileName(invoice.getFile(), invoice.getEmailFilter().getFileName(),
-                    invoice.getReceivedDate());
+            final String filename;
+            final java.io.File fileToUpload;
+
+            if (invoice.getEmailFilter().isMerge() && invoice.getFiles().size() > 1) {
+                final List<java.io.File> orderedFiles = invoice.getFiles();
+                orderedFiles.sort((o1, o2) -> 0);
+
+                filename = getFileName(orderedFiles.get(0), invoice.getEmailFilter().getFileName(),
+                        invoice.getReceivedDate());
+
+                mergeFiles(orderedFiles, filename);
+
+                fileToUpload = new java.io.File(filename);
+            } else {
+                fileToUpload = invoice.getFiles().get(0);
+                filename = getFileName(fileToUpload, invoice.getEmailFilter().getFileName(),
+                        invoice.getReceivedDate());
+            }
+
             final File folder = searchFolder(invoice.getEmailFilter().getFolderId());
             if (folder != null) {
                 logger().trace("Folder found. folder={}", folder);
                 final File file = searchFile(folder.getId(), filename, invoice.getEmailFilter().getFileMimeType());
                 if (file == null) {
                     logger().debug("File doesn't exist and will be uploaded. filename={}, invoice={}", filename, invoice);
-                    final File uploadedFile = uploadFile(folder.getId(), invoice.getFile(), filename,
+                    final File uploadedFile = uploadFile(folder.getId(), fileToUpload, filename,
                             invoice.getEmailFilter().getFileMimeType());
                     logger().info("File uploaded. filename={}, file={}", filename, uploadedFile);
                 } else {
@@ -99,6 +122,17 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
         return drive.files().create(fileMetadata, new FileContent(fileMimeType, fileToUpload))
                 .setFields("id, parents")
                 .execute();
+    }
+
+    private String mergeFiles(final List<java.io.File> files, final String finalName)
+            throws IOException {
+        final PDFMergerUtility pdfMergerUtility = new PDFMergerUtility();
+        for (final java.io.File file : files) {
+            pdfMergerUtility.addSource(file);
+        }
+        pdfMergerUtility.setDestinationFileName(finalName);
+        pdfMergerUtility.mergeDocuments(MemoryUsageSetting.setupMainMemoryOnly());
+        return finalName;
     }
 
     private String getFileName(final java.io.File file, final String namePattern, final long receivedDate) {
