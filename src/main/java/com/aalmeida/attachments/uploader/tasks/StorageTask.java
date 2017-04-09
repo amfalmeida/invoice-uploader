@@ -1,15 +1,8 @@
-package com.aalmeida.invoice.uploader.tasks;
+package com.aalmeida.attachments.uploader.tasks;
 
-import com.aalmeida.invoice.uploader.Loggable;
-import com.aalmeida.utils.DateUtils;
-import com.aalmeida.utils.FileUtils;
-import com.google.api.client.http.FileContent;
+import com.aalmeida.attachments.uploader.Loggable;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 

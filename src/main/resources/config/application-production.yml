@@ -1,10 +1,7 @@
 
-app:
-  name: invoice-uploader
-
 # Google configuration
 google:
-  app.name: invoice-uploader
+  app.name: ${app.name}
   client:
     id: <id>
     secret: <secret>

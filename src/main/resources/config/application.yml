@@ -6,4 +6,7 @@ spring:
   main:
     web-environment: false
   application:
-    name: invoice-uploader
+    name: attachments-auto-upload
+
+app:
+  name: attachments-auto-upload

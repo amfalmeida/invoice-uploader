@@ -1,6 +1,6 @@
-package com.aalmeida.invoice.uploader.email;
+package com.aalmeida.attachments.uploader.email;
 
-import com.aalmeida.invoice.uploader.Loggable;
+import com.aalmeida.attachments.uploader.Loggable;
 import com.aalmeida.utils.FileUtils;
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.util.BASE64DecoderStream;
