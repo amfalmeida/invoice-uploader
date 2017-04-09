@@ -1,4 +1,4 @@
-package com.aalmeida.invoice.uploader.tasks;
+package com.aalmeida.attachments.uploader.tasks;
 
 public abstract class AbstractTask {
 

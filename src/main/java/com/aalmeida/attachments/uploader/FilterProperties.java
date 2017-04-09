@@ -1,4 +1,4 @@
-package com.aalmeida.invoice.uploader;
+package com.aalmeida.attachments.uploader;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -23,6 +23,11 @@ public class FilterProperties {
 
     public static class EmailFilter {
 
+        public enum MergeOrder {
+            DESC,
+            ASC;
+        }
+
         private String type;
         private String from;
         private String subject;
@@ -31,6 +36,8 @@ public class FilterProperties {
         private String fileMimeType;
         private String folder;
         private String folderId;
+        private boolean merge;
+        private MergeOrder mergeOrder;
 
         public String getType() {
             return type;
@@ -96,6 +103,22 @@ public class FilterProperties {
             this.folderId = folderId;
         }
 
+        public boolean isMerge() {
+            return merge;
+        }
+
+        public void setMerge(boolean merge) {
+            this.merge = merge;
+        }
+
+        public MergeOrder getMergeOrder() {
+            return mergeOrder;
+        }
+
+        public void setMergeOrder(MergeOrder mergeOrder) {
+            this.mergeOrder = mergeOrder;
+        }
+
         @Override
         public String toString() {
             return "EmailFilter{" +
@@ -107,6 +130,8 @@ public class FilterProperties {
                     ", fileMimeType='" + fileMimeType + '\'' +
                     ", folder='" + folder + '\'' +
                     ", folderId='" + folderId + '\'' +
+                    ", merge=" + merge +
+                    ", mergeOrder=" + mergeOrder +
                     '}';
         }
     }

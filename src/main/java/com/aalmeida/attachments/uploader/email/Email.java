@@ -1,4 +1,4 @@
-package com.aalmeida.invoice.uploader.email;
+package com.aalmeida.attachments.uploader.email;
 
 import java.io.File;
 import java.util.Date;
