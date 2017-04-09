@@ -28,6 +28,8 @@ filter:
       fileMimeType: application/pdf
       folder: communications
       folderId: 111111111
+      merge: true
+      merge.order: [DESC_VALUE]
     - type: electricity
       from: (.*)@edp.pt
       subject: (.*)fatura(.*)
