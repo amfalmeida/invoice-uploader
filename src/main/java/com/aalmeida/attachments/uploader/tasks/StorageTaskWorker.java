@@ -9,6 +9,7 @@ import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.slf4j.MDC;
@@ -40,7 +41,11 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
 
             if (invoice.getEmailFilter().isMerge() && invoice.getFiles().size() > 1) {
                 final List<java.io.File> orderedFiles = invoice.getFiles();
-                orderedFiles.sort((o1, o2) -> 0);
+                if (invoice.getEmailFilter().getMergeOrder() == FilterProperties.EmailFilter.MergeOrder.ASC) {
+                    orderedFiles.sort(NameFileComparator.NAME_INSENSITIVE_COMPARATOR);
+                } else {
+                    orderedFiles.sort(NameFileComparator.NAME_INSENSITIVE_REVERSE);
+                }
 
                 filename = getFileName(orderedFiles.get(0), invoice.getEmailFilter().getFileName(),
                         invoice.getReceivedDate());
@@ -126,13 +131,15 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
 
     private String mergeFiles(final List<java.io.File> files, final String finalName)
             throws IOException {
+        final String path = String.format("%s%s%s", files.get(0).getParent(), "/", finalName);
         final PDFMergerUtility pdfMergerUtility = new PDFMergerUtility();
         for (final java.io.File file : files) {
             pdfMergerUtility.addSource(file);
         }
-        pdfMergerUtility.setDestinationFileName(finalName);
+        pdfMergerUtility.setDestinationFileName(path);
+        //pdfMergerUtility.setDestinationFileName(finalName);
         pdfMergerUtility.mergeDocuments(MemoryUsageSetting.setupMainMemoryOnly());
-        return finalName;
+        return path;
     }
 
     private String getFileName(final java.io.File file, final String namePattern, final long receivedDate) {
