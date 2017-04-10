@@ -80,7 +80,8 @@ gradle/wrapper/gradle-wrapper.properties
 
 .idea
 application-development.yml
+application-development2.yml
 /temp/*
 .store
 /gradle
-/log
+/logs
