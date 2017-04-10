@@ -41,27 +41,33 @@ public class ApplicationConfig implements Loggable {
     public EmailListener emailListener(final FilterProperties filterProperties,
                                        final StorageTask storageTask) {
         return email -> {
-            logger().trace("Checking email. email={}", email);
-            if (filterProperties == null || filterProperties.getTypes() == null) {
-                return;
-            }
-            filterProperties.getTypes().forEach(filter -> {
-                if (email.getFromAddress().matches(filter.getFrom())
-                        && email.getSubject().matches(filter.getSubject())) {
-                    final List<File> files = new ArrayList<>();
-                    email.getAttachments()
-                            .forEach(file -> {
-                                if (file.getName().matches(filter.getAttachments())) {
-                                    files.add(file);
-                                } else {
-                                    file.delete();
-                                }
-                            });
-                    if (!files.isEmpty()) {
-                        storageTask.handleRequest(new Invoice(files, filter, email.getReceivedDate()));
-                    }
+            try {
+                logger().trace("Checking email. email={}", email);
+                if (filterProperties == null || filterProperties.getTypes() == null) {
+                    return;
                 }
-            });
+                filterProperties.getTypes().forEach(filter -> {
+                    if (email.getFromAddress().matches(filter.getFrom())
+                            && email.getSubject().matches(filter.getSubject())) {
+                        if (email.getAttachments() != null) {
+                            final List<File> files = new ArrayList<>();
+                            email.getAttachments()
+                                    .forEach(file -> {
+                                        if (file.getName().matches(filter.getAttachments())) {
+                                            files.add(file);
+                                        } else {
+                                            file.delete();
+                                        }
+                                    });
+                            if (!files.isEmpty()) {
+                                storageTask.handleRequest(new Invoice(files, filter, email.getReceivedDate()));
+                            }
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                logger().error("Failed to process received email. email={}", email, e);
+            }
         };
     }
 

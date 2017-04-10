@@ -74,4 +74,13 @@ task deploy(dependsOn: build) {
         from 'src/main/resources/config'
         into 'build/deploy/config'
     }
+    copy {
+        from 'service'
+        into 'build/deploy/'
+        filter{
+            it.replaceAll('@projectName@', project.name)
+                .replaceAll('@projectVersion@', project.version)
+        }
+        rename 'WinSW.NET4', project.name + '-' + project.version
+    }
 }

@@ -58,6 +58,12 @@ public class EmailMonitor implements Loggable {
 
         final Store store = session.getStore(PROTOCOL);
         store.connect(imapHost, username,password);
+
+        if (logger().isTraceEnabled()) {
+            final Folder[] folderList = store.getDefaultFolder().list();
+            printFolders(folderList);
+        }
+
         folder = store.getFolder(monitorFolder);
         folder.open(Folder.READ_WRITE);
 
@@ -160,8 +166,10 @@ public class EmailMonitor implements Loggable {
             email.setFromAddress(getAddress(message.getFrom()));
             email.setReceivedDate(message.getReceivedDate().getTime());
 
+            /*
             message.setFlag(Flags.Flag.SEEN, true);
             message.setFlag(Flags.Flag.FLAGGED, true);
+            */
 
             if (logger().isTraceEnabled()) {
                 logger().trace("Email fetched. email={}", email);
@@ -208,6 +216,16 @@ public class EmailMonitor implements Loggable {
         Calendar calBegin = Calendar.getInstance();
         calBegin.add(Calendar.DAY_OF_YEAR, -daysOld);
         return calBegin.getTime();
+    }
+
+    private void printFolders(final Folder[] folderList) throws MessagingException {
+        if (folderList == null) {
+            return;
+        }
+        for (final Folder folder : folderList) {
+            logger().trace("Folder {}", folder.getFullName());
+            printFolders(folder.list());
+        }
     }
 
     private static class KeepAlive implements Runnable {
