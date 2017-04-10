@@ -1,8 +1,8 @@
 <service>
     <id>@projectName@</id>
     <name>@projectName@</name>
-    <description>This service runs ${app.name}.</description>
-    <workingdirectory>.</workingdirectory>
+    <description>This service runs @projectName@.</description>
+    <workingdirectory>@workingdirectory@</workingdirectory>
     <onfailure action="restart" delay="10 sec"/>
     <executable>java</executable>
     <arguments>-Xmx64M -Dlogging.config=./config/logback.xml -jar @projectName@-@projectVersion@.jar</arguments>
