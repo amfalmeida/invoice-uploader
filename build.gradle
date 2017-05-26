@@ -37,6 +37,8 @@ dependencies {
 
     compile "commons-io:commons-io:2.5"
 
+    compile "com.sun.winsw:winsw:2.5"
+
     testCompile "org.springframework.boot:spring-boot-starter-test"
     testCompile "org.jmockit:jmockit:1.31"
     testCompile "junit:junit:4.12"

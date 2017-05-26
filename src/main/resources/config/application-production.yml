@@ -44,11 +44,3 @@ filter:
       fileMimeType: application/pdf
       folder: Gas
       folderId: 111111113
-    - type: rent
-      from: (.*)@activobank.pt
-      subject: (.*)Documentos em formato digital(.*)
-      attachments: NL_(.*).pdf
-      fileName: ${receivedDate}_${originalName}.${extension}
-      fileMimeType: application/pdf
-      folder: Rent
-      folderId: 111111114

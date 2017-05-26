@@ -170,6 +170,7 @@ public class EmailMonitor implements Loggable {
             message.setFlag(Flags.Flag.SEEN, true);
             message.setFlag(Flags.Flag.FLAGGED, true);
             */
+            message.setFlag(Flags.Flag.SEEN, false);
 
             if (logger().isTraceEnabled()) {
                 logger().trace("Email fetched. email={}", email);
