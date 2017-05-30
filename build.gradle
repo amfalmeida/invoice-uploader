@@ -7,6 +7,9 @@ buildscript {
     }
     repositories {
         mavenCentral()
+        maven {
+            url "http://repo.jenkins-ci.org/releases"
+        }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -36,6 +39,8 @@ dependencies {
     compile "org.apache.pdfbox:pdfbox:2.0.5"
 
     compile "commons-io:commons-io:2.5"
+
+    //compile "com.sun.winsw:winsw:1.18:exe:bin"
 
     testCompile "org.springframework.boot:spring-boot-starter-test"
     testCompile "org.jmockit:jmockit:1.31"

@@ -42,7 +42,9 @@ public class ApplicationConfig implements Loggable {
                                        final StorageTask storageTask) {
         return email -> {
             try {
-                logger().trace("Checking email. email={}", email);
+                if (logger().isTraceEnabled()) {
+                    logger().trace("Going to process email. email={}", email);
+                }
                 if (filterProperties == null || filterProperties.getTypes() == null) {
                     return;
                 }
@@ -60,6 +62,9 @@ public class ApplicationConfig implements Loggable {
                                         }
                                     });
                             if (!files.isEmpty()) {
+                                if (logger().isDebugEnabled()) {
+                                    logger().debug("Going to execute storage task. files={}, filter={}", files, filter);
+                                }
                                 storageTask.handleRequest(new Invoice(files, filter, email.getReceivedDate()));
                             }
                         }

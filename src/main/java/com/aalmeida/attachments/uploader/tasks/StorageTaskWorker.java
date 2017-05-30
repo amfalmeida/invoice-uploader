@@ -37,6 +37,10 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
             final String filename;
             final java.io.File fileToUpload;
 
+            if (logger().isTraceEnabled()) {
+                logger().trace("Checking invoice. invoice={}", invoice);
+            }
+
             if (invoice.getEmailFilter().isMerge() && invoice.getFiles().size() > 1) {
                 final List<java.io.File> orderedFiles = invoice.getFiles();
                 if (invoice.getEmailFilter().getMergeOrder() == FilterProperties.EmailFilter.MergeOrder.ASC) {
@@ -57,16 +61,25 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
 
             final File folder = searchFolder(invoice.getEmailFilter().getFolderId());
             if (folder != null) {
-                logger().trace("Folder found. folder={}", folder);
+                if (logger().isTraceEnabled()) {
+                    logger().trace("Folder found. folder={}", folder);
+                }
                 final File file = searchFile(folder.getId(), filename, invoice.getEmailFilter().getFileMimeType());
                 if (file == null) {
-                    logger().debug("File doesn't exist and will be uploaded. filename={}, invoice={}", filename, invoice);
+                    if (logger().isDebugEnabled()) {
+                        logger().debug("File doesn't exist and will be uploaded. filename={}, invoice={}", filename, invoice);
+                    }
                     final File uploadedFile = uploadFile(folder.getId(), fileToUpload, filename,
                             invoice.getEmailFilter().getFileMimeType());
                     logger().info("File uploaded. filename={}, file={}", filename, uploadedFile);
                 } else {
-                    logger().trace("File already exists. filename={}, file={}", filename, file);
+                    if (logger().isTraceEnabled()) {
+                        logger().trace("File already exists. filename={}, file={}", filename, file);
+                    }
                 }
+            } else {
+                logger().warn("Folder not found. folder={}, folderId={}", invoice.getEmailFilter().getFolder(),
+                        invoice.getEmailFilter().getFolderId());
             }
         } finally {
             MDC.remove(Constants.Logger.MDC_KEY_TYPE);
@@ -130,7 +143,13 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
                 java.io.File.separator, finalName));
         final PDFMergerUtility pdfMergerUtility = new PDFMergerUtility();
         for (final java.io.File file : files) {
+            if (logger().isTraceEnabled()) {
+                logger().trace("Add file to be merged. file={}", file);
+            }
             pdfMergerUtility.addSource(file);
+        }
+        if (logger().isTraceEnabled()) {
+            logger().trace("File merged. mergedFile={}", mergedFile);
         }
         pdfMergerUtility.setDestinationFileName(mergedFile.getAbsolutePath());
         pdfMergerUtility.mergeDocuments(MemoryUsageSetting.setupMainMemoryOnly());
