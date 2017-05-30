@@ -81,6 +81,6 @@ task deploy(dependsOn: build) {
             it.replaceAll('@projectName@', project.name)
                 .replaceAll('@projectVersion@', project.version)
         }
-        rename 'WinSW.NET2', project.name + '-' + project.version
+        rename 'WinSW.NET4', project.name + '-' + project.version
     }
 }
