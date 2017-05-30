@@ -2,7 +2,7 @@
 # Spring properties
 spring:
   profiles:
-    active: development2
+    active: development
   main:
     web-environment: false
   application:

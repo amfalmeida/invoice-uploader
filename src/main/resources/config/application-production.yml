@@ -14,7 +14,7 @@ email:
   monitor:
     folder: "[Gmail]/All Mail"
     days.older: 50
-    subject.pattern: (.*)
+    subject.pattern: (.*)(fatura|Fatura)(.*)
   attachments.temporary.folder: ./temp
 
 # Email filter
@@ -26,6 +26,8 @@ filter:
       attachments: (.*).pdf
       fileName: ${receivedDate}_${originalName}.${extension}
       fileMimeType: application/pdf
+      merge: true
+      mergeOrder: ASC
       folder: communications
       folderId: 111111111
     - type: electricity
