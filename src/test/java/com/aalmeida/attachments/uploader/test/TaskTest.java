@@ -45,7 +45,6 @@ public class TaskTest {
             emailFilter.setFileName("${receivedDate}_${originalName}.${extension}");
             emailFilter.setFolderId("0B9cL05zbIkdScnBOdGFaeXI4bkU");
             emailFilter.setFolder("Test");
-            emailFilter.setMerge(true);
             emailFilter.setMergeOrder(FilterProperties.EmailFilter.MergeOrder.ASC);
 
             Mockito.doReturn(dummyFiles).when(invoice).getFiles();

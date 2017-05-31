@@ -38,10 +38,10 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
             final java.io.File fileToUpload;
 
             if (logger().isTraceEnabled()) {
-                logger().trace("Checking invoice. invoice={}", invoice);
+                logger().trace("Running storage task. invoice={}", invoice);
             }
 
-            if (invoice.getEmailFilter().isMerge() && invoice.getFiles().size() > 1) {
+            if (invoice.getFiles().size() > 1) {
                 final List<java.io.File> orderedFiles = invoice.getFiles();
                 if (invoice.getEmailFilter().getMergeOrder() == FilterProperties.EmailFilter.MergeOrder.ASC) {
                     orderedFiles.sort(NameFileComparator.NAME_INSENSITIVE_COMPARATOR);
@@ -80,6 +80,11 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
             } else {
                 logger().warn("Folder not found. folder={}, folderId={}", invoice.getEmailFilter().getFolder(),
                         invoice.getEmailFilter().getFolderId());
+            }
+            if (fileToUpload.delete()) {
+                if (logger().isTraceEnabled()) {
+                    logger().trace("File deleted.");
+                }
             }
         } finally {
             MDC.remove(Constants.Logger.MDC_KEY_TYPE);

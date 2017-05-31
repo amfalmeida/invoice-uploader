@@ -43,9 +43,12 @@ public class ApplicationConfig implements Loggable {
         return email -> {
             try {
                 if (logger().isTraceEnabled()) {
-                    logger().trace("Going to process email. email={}", email);
+                    logger().trace("Going to check if email match any rule. email={}", email);
                 }
                 if (filterProperties == null || filterProperties.getTypes() == null) {
+                    if (logger().isDebugEnabled()) {
+                        logger().debug("No filter found.");
+                    }
                     return;
                 }
                 filterProperties.getTypes().forEach(filter -> {
@@ -63,11 +66,15 @@ public class ApplicationConfig implements Loggable {
                                     });
                             if (!files.isEmpty()) {
                                 if (logger().isDebugEnabled()) {
-                                    logger().debug("Going to execute storage task. files={}, filter={}", files, filter);
+                                    logger().debug("Going to delegate to tasks. files={}, filter={}", files, filter);
                                 }
                                 storageTask.handleRequest(new Invoice(files, filter, email.getReceivedDate()));
+                            } else if (logger().isDebugEnabled()) {
+                                logger().debug("No files matches.");
                             }
                         }
+                    } else if (logger().isDebugEnabled()) {
+                        logger().debug("From address and subject don't match. filter={}, email={}", filter, email);
                     }
                 });
             } catch (Exception e) {
