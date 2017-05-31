@@ -166,8 +166,8 @@ public class EmailMonitor implements Loggable {
             email.setFromAddress(getAddress(message.getFrom()));
             email.setReceivedDate(message.getReceivedDate().getTime());
 
+            message.setFlag(Flags.Flag.SEEN, false);
             /*
-            message.setFlag(Flags.Flag.SEEN, true);
             message.setFlag(Flags.Flag.FLAGGED, true);
             */
 
