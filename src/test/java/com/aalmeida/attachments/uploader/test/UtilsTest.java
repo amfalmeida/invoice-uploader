@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(MockitoJUnitRunner.class)
 public class UtilsTest {
 
-    private static final String FILE_NAME_TEST = ".\\temp\\-#-0-#-2017052215SE790067403.pdf";
+    private static final String FILE_NAME_TEST = "2017052215SE790067403-#-0-#-.pdf";
 
     @Test
     public void test_fileNameName() {

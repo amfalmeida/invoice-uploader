@@ -5,25 +5,12 @@ import java.util.List;
 
 public final class FileUtils {
 
-    private static final String PREFIX_SEPARATOR = "-#-";
+    private static final String SUFFIX_SEPARATOR = "-#-";
 
     private FileUtils() { }
 
-    /**
-     * Save file.
-     *
-     * @param is
-     *            the is
-     * @param tempPath
-     *            the temp path
-     * @param fileName
-     *            the file name
-     * @return the file
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     */
-    public static File saveFile(final InputStream is, final String tempPath, final String fileName,
-                                final String prefix) throws IOException {
+    public static File saveFile(final byte[] content, final String tempPath, final String fileName,
+                                final String suffix) throws IOException {
         String strPath = tempPath;
         if (!strPath.endsWith(File.separator)) {
             strPath += File.separator;
@@ -32,16 +19,14 @@ public final class FileUtils {
         path.mkdirs();
 
         String filePath = String.format("%s%s", strPath, fileName);
-        if (prefix != null) {
-            filePath = String.format("%s%s%s%s%s", strPath, PREFIX_SEPARATOR, prefix, PREFIX_SEPARATOR, fileName);
+        if (suffix != null) {
+            final String name = getName(fileName);
+            final String extension = getExtension(fileName);
+            filePath = String.format("%s%s%s%s%s.%s", strPath, name, SUFFIX_SEPARATOR, suffix, SUFFIX_SEPARATOR, extension);
         }
         final File f = new File(filePath);
         try (FileOutputStream fos = new FileOutputStream(f)) {
-            byte[] buf = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = is.read(buf)) != -1) {
-                fos.write(buf, 0, bytesRead);
-            }
+            fos.write(content);
         }
         return f;
     }
@@ -54,7 +39,10 @@ public final class FileUtils {
      * @return the name
      */
     public static String getName(final String fileName) {
-        return removePrefix(splitFileName(fileName, 0));
+        if (fileName.indexOf(SUFFIX_SEPARATOR) > 0) {
+            return splitFileName(removeSuffix(fileName), 0);
+        }
+        return splitFileName(fileName, 0);
     }
 
     /**
@@ -65,6 +53,9 @@ public final class FileUtils {
      * @return the extension
      */
     public static String getExtension(final String fileName) {
+        if (fileName.indexOf(SUFFIX_SEPARATOR) > 0) {
+            return splitFileName(removeSuffix(fileName), 1);
+        }
         return splitFileName(fileName, 1);
     }
 
@@ -85,15 +76,15 @@ public final class FileUtils {
         }
     }
 
-    private static String removePrefix(final String fileName) {
+    private static String removeSuffix(final String fileName) {
         if (fileName == null || fileName.trim().isEmpty()) {
             return null;
         }
-        final String[] tokens = fileName.split(PREFIX_SEPARATOR);
+        final String[] tokens = fileName.split(SUFFIX_SEPARATOR);
         if (tokens.length < 3) {
             return null;
         }
-        return tokens[2];
+        return String.format("%s%s", tokens[0], tokens[2]);
     }
 
     private static String splitFileName(String fileName, int position) {

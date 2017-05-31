@@ -36,7 +36,6 @@ public class FilterProperties {
         private String fileMimeType;
         private String folder;
         private String folderId;
-        private boolean merge;
         private MergeOrder mergeOrder;
 
         public String getType() {
@@ -103,14 +102,6 @@ public class FilterProperties {
             this.folderId = folderId;
         }
 
-        public boolean isMerge() {
-            return merge;
-        }
-
-        public void setMerge(boolean merge) {
-            this.merge = merge;
-        }
-
         public MergeOrder getMergeOrder() {
             return mergeOrder;
         }
@@ -130,7 +121,6 @@ public class FilterProperties {
                     ", fileMimeType='" + fileMimeType + '\'' +
                     ", folder='" + folder + '\'' +
                     ", folderId='" + folderId + '\'' +
-                    ", merge=" + merge +
                     ", mergeOrder=" + mergeOrder +
                     '}';
         }
