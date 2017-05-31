@@ -1,2 +1,6 @@
 rootProject.name = 'attachments-auto-upload'
 
+gradle.ext.distId = 'attachments-auto-upload'
+gradle.ext.distName = 'Attachments auto upload'
+gradle.ext.distDescription = 'Upload attachments to cloud'
+

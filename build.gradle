@@ -9,7 +9,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
     }
 }
 
@@ -19,10 +19,15 @@ apply plugin: 'org.springframework.boot'
 
 repositories {
     mavenCentral()
+    maven { url "http://repo.jenkins-ci.org/releases" }
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+configurations {
+    service
+}
 
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
@@ -40,6 +45,8 @@ dependencies {
     testCompile "org.springframework.boot:spring-boot-starter-test"
     testCompile "org.jmockit:jmockit:1.31"
     testCompile "junit:junit:4.12"
+
+    service "com.sun.winsw:winsw:1.18:bin@exe"
 }
 
 jar {
@@ -59,6 +66,12 @@ test {
     exclude '**/*'
 }
 
+task copyService(type: Copy) {
+    from configurations.service
+    into "$buildDir/deploy/"
+    rename 'winsw-1.18-bin', project.name + '-' + project.version
+}
+
 task deploy(dependsOn: build) {
     delete 'build/deploy'
     copy {
@@ -75,12 +88,15 @@ task deploy(dependsOn: build) {
         into 'build/deploy/config'
     }
     copy {
-        from 'service'
+        from 'src/main/dist'
         into 'build/deploy/'
         filter{
-            it.replaceAll('@projectName@', project.name)
-                .replaceAll('@projectVersion@', project.version)
+            it.replaceAll('@project.id@', gradle.distId)
+                    .replaceAll('@project.name@', gradle.distName)
+                    .replaceAll('@project.description@', gradle.distDescription)
+                    .replaceAll('@projectName@', project.name)
+                    .replaceAll('@projectVersion@', project.version)
         }
-        rename 'WinSW.NET4', project.name + '-' + project.version
+        rename 'service', project.name + '-' + project.version
     }
 }
