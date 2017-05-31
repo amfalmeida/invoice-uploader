@@ -1,9 +1,12 @@
 package com.aalmeida.attachments.uploader.email;
 
+import com.aalmeida.attachments.uploader.FilterProperties;
 import com.aalmeida.attachments.uploader.Loggable;
 import com.aalmeida.utils.FileUtils;
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.util.BASE64DecoderStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.comparator.NameFileComparator;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -182,6 +185,10 @@ public class EmailMonitor implements Loggable {
             }
             if (listener != null) {
                 listener.emailReceived(email);
+            } else {
+                if (logger().isWarnEnabled()) {
+                    logger().warn("Listener is null");
+                }
             }
         } catch (MessagingException | IOException e) {
             logger().error("Failed to process the email.", e);
@@ -189,17 +196,32 @@ public class EmailMonitor implements Loggable {
     }
 
     private List<File> getAttachments(final MimeMultipart mp) throws IOException, MessagingException {
-        List<File> filesSaved = null;
+        List<Attachment> attachments = null;
         for (int part = 0; part < mp.getCount(); part++) {
             BodyPart b = mp.getBodyPart(part);
             Object content = b.getContent();
             if (content instanceof MimeMultipart) {
                 getAttachments((MimeMultipart) content);
             } else if ((content instanceof BASE64DecoderStream || content instanceof SharedByteArrayInputStream)) {
-                if (filesSaved == null) {
-                    filesSaved = new ArrayList<>();
+                if (attachments == null) {
+                    attachments = new ArrayList<>();
                 }
-                filesSaved.add(FileUtils.saveFile(b.getInputStream(), temporaryFolder, b.getFileName(),
+                final Attachment attachment = new Attachment(IOUtils.toByteArray(b.getInputStream()), b.getFileName());
+                attachments.add(attachment);
+                if (logger().isTraceEnabled()) {
+                    logger().trace("Attachment added. attachment={}", attachment);
+                }
+            }
+        }
+
+        List<File> filesSaved = null;
+        if (attachments != null && !attachments.isEmpty()) {
+            // order attachments list
+            attachments.sort((o1, o2) -> o2.getName().compareTo(o1.getName()));
+            // store files
+            filesSaved = new ArrayList<>(attachments.size());
+            for (Attachment attachment : attachments) {
+                filesSaved.add(FileUtils.saveFile(attachment.getContent(), temporaryFolder, attachment.getName(),
                         Integer.toString(filesSaved.size())));
             }
         }
