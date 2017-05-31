@@ -6,10 +6,13 @@ buildscript {
         springBootVersion = '1.5.2.RELEASE'
     }
     repositories {
+        mavenLocal()
         mavenCentral()
+        maven { url "http://repo.jenkins-ci.org/releases/" }
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        //classpath "com.sun.winsw:winsw:1.18:bin"
     }
 }
 
@@ -19,6 +22,7 @@ apply plugin: 'org.springframework.boot'
 
 repositories {
     mavenCentral()
+    //maven { url "http://repo.jenkins-ci.org/releases/" }
 }
 
 sourceCompatibility = 1.8
@@ -82,89 +86,5 @@ task deploy(dependsOn: build) {
                 .replaceAll('@projectVersion@', project.version)
         }
         rename 'WinSW.NET4', project.name + '-' + project.version
-    }
-}
-
-buildscript {
-    ext {
-        springBootVersion = '1.5.2.RELEASE'
-    }
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    }
-}
-
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-
-repositories {
-    mavenCentral()
-}
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-dependencies {
-    compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
-
-    compile 'com.google.api-client:google-api-client:1.22.0'
-    compile 'com.google.oauth-client:google-oauth-client-jetty:1.22.0'
-    compile 'com.google.apis:google-api-services-drive:v3-rev67-1.22.0'
-
-    compile "javax.mail:mail:1.5.0-b01"
-
-    compile "org.apache.pdfbox:pdfbox:2.0.5"
-
-    compile "commons-io:commons-io:2.5"
-
-    testCompile "org.springframework.boot:spring-boot-starter-test"
-    testCompile "org.jmockit:jmockit:1.31"
-    testCompile "junit:junit:4.12"
-}
-
-jar {
-    baseName = project.name
-    version = project.version
-    exclude "**/config"
-    exclude "**/service.conf"
-}
-
-// https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html
-springBoot {
-    executable = true
-    backupSource = false
-}
-
-test {
-    exclude '**/*'
-}
-
-task deploy(dependsOn: build) {
-    delete 'build/deploy'
-    copy {
-        from jar
-        into 'build/deploy/'
-    }
-    copy {
-        from 'src/main/resources/service.conf'
-        into 'build/deploy/'
-        rename 'service', project.name + '-' + project.version
-    }
-    copy {
-        from 'src/main/resources/config'
-        into 'build/deploy/config'
-    }
-    copy {
-        from 'service'
-        into 'build/deploy/'
-        filter{
-            it.replaceAll('@projectName@', project.name)
-                .replaceAll('@projectVersion@', project.version)
-        }
-        rename 'WinSW.NET2', project.name + '-' + project.version
     }
 }
