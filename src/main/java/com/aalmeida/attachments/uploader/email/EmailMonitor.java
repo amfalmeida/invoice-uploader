@@ -11,7 +11,6 @@ import javax.mail.*;
 import javax.mail.event.MessageCountEvent;
 import javax.mail.event.MessageCountListener;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.search.*;
 import javax.mail.util.SharedByteArrayInputStream;
@@ -23,8 +22,8 @@ public class EmailMonitor implements Loggable {
 
     private final static String PROTOCOL = "imaps";
 
-    private static final int KEEP_ALIVE_FREQUENCY = 1000 * 30;
-    private static final int WAIT_RETRY = 1000 * 30;
+    private final int KEEP_ALIVE_FREQUENCY = 1000 * 30;
+    private final int WAIT_RETRY = 1000 * 30;
 
     private final String imapHost;
     private final String username;
@@ -61,7 +60,6 @@ public class EmailMonitor implements Loggable {
         store.connect(imapHost, username,password);
 
         if (logger().isTraceEnabled()) {
-            logger().trace("Going to get all folders.");
             final Folder[] folderList = store.getDefaultFolder().list();
             printFolders(folderList);
         }
@@ -72,17 +70,13 @@ public class EmailMonitor implements Loggable {
         final Date beginDate = getBeginDate(daysOld);
 
         if (logger().isDebugEnabled()) {
-            logger().debug("Checking emails with date >= {}", beginDate);
+            logger().debug("Monitoring emails with date >= {}", beginDate);
         }
-        final Message messages[] = folder.search(buildSearchTerms(beginDate, subjectPattern));
-        //final MimeMessage[] messages = (MimeMessage[]) folder.search(buildSearchTerms(beginDate, subjectPattern));
+        final Message msgs[] = folder.search(buildSearchTerms(beginDate, subjectPattern));
         if (logger().isTraceEnabled()) {
-            logger().trace("Going to process {} emails.", messages.length);
+            logger().trace("Going to check {} emails.", msgs.length);
         }
-        final FetchProfile fetchProfile = new FetchProfile();
-        fetchProfile.add(FetchProfile.Item.ENVELOPE);
-        folder.fetch(messages, fetchProfile);
-        for (final Message msg : messages) {
+        for (final Message msg : msgs) {
             processEmail(msg);
         }
         folder.addMessageCountListener(new MessageCountListener() {
@@ -144,10 +138,6 @@ public class EmailMonitor implements Loggable {
                         return false;
                     }
                     if (message.getSubject().matches(subjectSearchPattern)) {
-                        if (logger().isTraceEnabled()) {
-                            logger().trace("Email subject matches. subject={}, receivedDate={}", message.getSubject(),
-                                    message.getReceivedDate());
-                        }
                         return true;
                     }
                 } catch (MessagingException ex) {
@@ -156,8 +146,10 @@ public class EmailMonitor implements Loggable {
                 return false;
             }
         };
-        return new AndTerm(new SizeTerm(ComparisonTerm.GT, 100),
-                new AndTerm(new ReceivedDateTerm(ComparisonTerm.GT, beginDate), subjectMatch));
+        return new AndTerm(
+                new ReceivedDateTerm(ComparisonTerm.GT, beginDate),
+                subjectMatch
+        );
     }
 
     private void processEmail(final Message message) {
@@ -174,8 +166,10 @@ public class EmailMonitor implements Loggable {
             email.setFromAddress(getAddress(message.getFrom()));
             email.setReceivedDate(message.getReceivedDate().getTime());
 
-            // do not mark message as read
-            message.setFlag(Flags.Flag.SEEN, false);
+            /*
+            message.setFlag(Flags.Flag.SEEN, true);
+            message.setFlag(Flags.Flag.FLAGGED, true);
+            */
 
             if (logger().isTraceEnabled()) {
                 logger().trace("Email fetched. email={}", email);
@@ -199,8 +193,7 @@ public class EmailMonitor implements Loggable {
                 if (filesSaved == null) {
                     filesSaved = new ArrayList<>();
                 }
-                filesSaved.add(FileUtils.saveFile(b.getInputStream(), temporaryFolder, b.getFileName(),
-                        Integer.toString(filesSaved.size())));
+                filesSaved.add(FileUtils.saveFile(b.getInputStream(), temporaryFolder, b.getFileName()));
             }
         }
         return filesSaved;
@@ -230,7 +223,7 @@ public class EmailMonitor implements Loggable {
             return;
         }
         for (final Folder folder : folderList) {
-            logger().trace("Folder name: '{}'", folder.getFullName());
+            logger().trace("Folder {}", folder.getFullName());
             printFolders(folder.list());
         }
     }

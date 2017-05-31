@@ -1,7 +1,6 @@
 package com.aalmeida.attachments.uploader.tasks;
 
 import com.aalmeida.attachments.uploader.Loggable;
-import com.aalmeida.utils.FileUtils;
 import com.google.api.services.drive.Drive;
 
 import java.util.*;
@@ -42,9 +41,6 @@ public class StorageTask extends AbstractTask implements Loggable {
                     outboundInvoice = f.get();
                     logger().debug("Outbound invoice. invoice={}", outboundInvoice);
                     handleNext(invoice);
-
-                    // delete processed files
-                    FileUtils.delete(f.get().getFiles());
                 } catch (InterruptedException | ExecutionException e) {
                     logger().error("Fail to outbound invoice. invoice={}", outboundInvoice, e);
                 }
