@@ -26,7 +26,6 @@ filter:
       attachments: (.*).pdf
       fileName: ${receivedDate}_${originalName}.${extension}
       fileMimeType: application/pdf
-      merge: true
       mergeOrder: ASC
       folder: communications
       folderId: 111111111
