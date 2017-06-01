@@ -36,7 +36,7 @@ public class FilterProperties {
         private String fileMimeType;
         private String folder;
         private String folderId;
-        private MergeOrder mergeOrder;
+        private MergeOrder mergeOrder = MergeOrder.ASC;
 
         public String getType() {
             return type;
