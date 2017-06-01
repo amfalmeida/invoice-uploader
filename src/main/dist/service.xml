@@ -1,0 +1,11 @@
+<service>
+	<id>@project.id@</id>
+	<name>@project.name@</name>
+	<description>@project.description@</description>
+	<workingdirectory>%BASE%\</workingdirectory>
+	<logpath>%BASE%\logs</logpath>
+	<logmode>rotate</logmode>
+
+	<executable>java</executable>
+    <arguments>-Xmx32M -Dlogging.config="%BASE%/config/logback.xml" -jar "%BASE%/@projectName@-@projectVersion@.jar"</arguments>
+</service>
