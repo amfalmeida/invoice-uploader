@@ -1,0 +1,12 @@
+
+# Spring properties
+spring:
+  profiles:
+    active: development
+  main:
+    web-environment: false
+  application:
+    name: attachments-auto-upload
+
+app:
+  name: attachments-auto-upload

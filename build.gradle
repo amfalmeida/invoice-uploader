@@ -1,0 +1,103 @@
+group 'com.aalmeida'
+version '1.0'
+
+buildscript {
+    ext {
+        springBootVersion = '1.5.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+
+repositories {
+    mavenCentral()
+    maven { url "http://repo.jenkins-ci.org/releases" }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+configurations {
+    service
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+
+    compile 'com.google.api-client:google-api-client:1.22.0'
+    compile 'com.google.oauth-client:google-oauth-client-jetty:1.22.0'
+    compile 'com.google.apis:google-api-services-drive:v3-rev67-1.22.0'
+
+    compile "javax.mail:mail:1.5.0-b01"
+
+    compile "org.apache.pdfbox:pdfbox:2.0.5"
+
+    compile "commons-io:commons-io:2.5"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test"
+    testCompile "org.jmockit:jmockit:1.31"
+    testCompile "junit:junit:4.12"
+
+    service "com.sun.winsw:winsw:1.18:bin@exe"
+}
+
+jar {
+    baseName = project.name
+    version = project.version
+    exclude "**/config"
+    exclude "**/service.conf"
+}
+
+// https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html
+springBoot {
+    executable = true
+    backupSource = false
+}
+
+test {
+    exclude '**/*'
+}
+
+task copyService(type: Copy) {
+    from configurations.service
+    into "$buildDir/dist/"
+    rename 'winsw-1.18-bin', project.name + '-' + project.version
+}
+task dist() {
+    delete 'build/dist'
+    copy {
+        from jar
+        into 'build/dist/'
+    }
+    copy {
+        from 'src/main/resources/service.conf'
+        into 'build/dist/'
+        rename 'service', project.name + '-' + project.version
+    }
+    copy {
+        from 'src/main/resources/config'
+        into 'build/dist/config'
+    }
+    copy {
+        from 'src/main/dist'
+        into 'build/dist/'
+        filter{
+            it.replaceAll('@project.id@', gradle.distId)
+                    .replaceAll('@project.name@', gradle.distName)
+                    .replaceAll('@project.description@', gradle.distDescription)
+                    .replaceAll('@projectName@', project.name)
+                    .replaceAll('@projectVersion@', project.version)
+        }
+        rename 'service', project.name + '-' + project.version
+    }
+}
+dist.dependsOn build
+dist.dependsOn copyService
