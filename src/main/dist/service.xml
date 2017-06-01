@@ -7,14 +7,5 @@
 	<logmode>rotate</logmode>
 
 	<executable>java</executable>
-	<startargument>-Xmx64M</startargument>
-	<startargument>-Dlogging.config=./config/logback.xml</startargument>
-	<startargument>-jar</startargument>
-	<startargument>@projectName@-@projectVersion@.jar</startargument>
-	<startargument>start</startargument>
-
-	<stopexecutable>java</stopexecutable>
-	<stopargument>-jar</stopargument>
-	<stopargument>@projectName@-@projectVersion@.jar</stopargument>
-	<startargument>stop</startargument>
+    <arguments>-Xmx32M -Dlogging.config="%BASE%/config/logback.xml" -jar "%BASE%/@projectName@-@projectVersion@.jar"</arguments>
 </service>

@@ -68,28 +68,27 @@ test {
 
 task copyService(type: Copy) {
     from configurations.service
-    into "$buildDir/deploy/"
+    into "$buildDir/dist/"
     rename 'winsw-1.18-bin', project.name + '-' + project.version
 }
-
-task deploy(dependsOn: build) {
-    delete 'build/deploy'
+task dist() {
+    delete 'build/dist'
     copy {
         from jar
-        into 'build/deploy/'
+        into 'build/dist/'
     }
     copy {
         from 'src/main/resources/service.conf'
-        into 'build/deploy/'
+        into 'build/dist/'
         rename 'service', project.name + '-' + project.version
     }
     copy {
         from 'src/main/resources/config'
-        into 'build/deploy/config'
+        into 'build/dist/config'
     }
     copy {
         from 'src/main/dist'
-        into 'build/deploy/'
+        into 'build/dist/'
         filter{
             it.replaceAll('@project.id@', gradle.distId)
                     .replaceAll('@project.name@', gradle.distName)
@@ -100,3 +99,5 @@ task deploy(dependsOn: build) {
         rename 'service', project.name + '-' + project.version
     }
 }
+dist.dependsOn build
+dist.dependsOn copyService
