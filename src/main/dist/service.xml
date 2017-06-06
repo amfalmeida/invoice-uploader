@@ -5,7 +5,13 @@
 	<workingdirectory>%BASE%\</workingdirectory>
 	<logpath>%BASE%\logs</logpath>
 	<logmode>rotate</logmode>
+	<startmode>Automatic</startmode>
+	<delayedAutoStart/>
 
 	<executable>java</executable>
     <arguments>-Xmx32M -Dlogging.config="%BASE%/config/logback.xml" -jar "%BASE%/@projectName@-@projectVersion@.jar"</arguments>
+
+	<onfailure action="restart" delay="10 sec"/>
+	<onfailure action="restart" delay="20 sec"/>
+	<onfailure action="none" />
 </service>
