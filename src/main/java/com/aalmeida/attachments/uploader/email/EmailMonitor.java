@@ -172,7 +172,7 @@ public class EmailMonitor implements Loggable {
             if (logger().isTraceEnabled()) {
                 logger().trace("Email added to be processed. email='{}'", email);
             }
-            listener.emailReceived(email);
+            listener.emailReceived(((IMAPMessage) message).getMessageID(), email);
         }
     }
 

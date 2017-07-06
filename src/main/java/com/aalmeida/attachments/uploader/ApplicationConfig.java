@@ -1,9 +1,11 @@
 package com.aalmeida.attachments.uploader;
 
+import com.aalmeida.attachments.uploader.email.Email;
 import com.aalmeida.attachments.uploader.email.EmailMonitor;
 import com.aalmeida.attachments.uploader.tasks.Invoice;
 import com.aalmeida.attachments.uploader.tasks.StorageTask;
 import com.aalmeida.attachments.uploader.email.EmailListener;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Configuration
 public class ApplicationConfig implements Loggable {
@@ -40,8 +43,10 @@ public class ApplicationConfig implements Loggable {
     @Autowired
     public EmailListener emailListener(final FilterProperties filterProperties,
                                        final StorageTask storageTask) {
-        return email -> {
+        return (id, email)  -> {
             try {
+                MDC.put(Constants.Logger.MDC_KEY_ID, UUID.randomUUID().toString());
+
                 if (logger().isTraceEnabled()) {
                     logger().trace("Going to check if email match any rule. email={}", email);
                 }
@@ -79,6 +84,8 @@ public class ApplicationConfig implements Loggable {
                 });
             } catch (Exception e) {
                 logger().error("Failed to process received email. email={}", email, e);
+            } finally {
+                MDC.remove(Constants.Logger.MDC_KEY_ID);
             }
         };
     }
