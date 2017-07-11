@@ -27,7 +27,7 @@ filter:
     - type: 3play
       from: (.*)@vodafone.pt
       subject: (.*)fatura(.*)
-      mergeOrder: ASC
+      mergeOrder: DESC # ASC or DESC
       folder: communications
       folderId: 111111111
       attachments: ${filter.default.attachments}

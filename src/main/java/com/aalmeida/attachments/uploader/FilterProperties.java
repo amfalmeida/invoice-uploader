@@ -40,7 +40,11 @@ public class FilterProperties {
         private String fileMimeType;
         private String folder;
         private String folderId;
-        private MergeOrder mergeOrder = MergeOrder.ASC;
+        private MergeOrder mergeOrder;
+
+        public EmailFilter() {
+            mergeOrder = MergeOrder.ASC;
+        }
 
         public String getType() {
             return type;
