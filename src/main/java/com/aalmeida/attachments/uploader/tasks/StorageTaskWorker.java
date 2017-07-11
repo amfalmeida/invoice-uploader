@@ -162,8 +162,8 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
     }
 
     private String getFileName(final java.io.File file, final String namePattern, final long receivedDate) {
-        return namePattern.replace("${receivedDate}", DateUtils.getDate(receivedDate))
-                .replace("${originalName}", FileUtils.getName(file.getName()))
-                .replace("${extension}", FileUtils.getExtension(file.getName()));
+        return namePattern.replace("%{receivedDate}", DateUtils.getDate(receivedDate))
+                .replace("%{originalName}", FileUtils.getName(file.getName()))
+                .replace("%{extension}", FileUtils.getExtension(file.getName()));
     }
 }

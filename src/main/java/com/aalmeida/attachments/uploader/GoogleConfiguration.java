@@ -35,7 +35,6 @@ public class GoogleConfiguration {
     private String googleClientSecret;
 
     @Bean
-    @Autowired
     public StorageTask storageTask(final Drive drive) {
         return new StorageTask(drive);
     }

@@ -19,29 +19,33 @@ email:
 
 # Email filter
 filter:
+  default:
+    fileName: "%{receivedDate}_%{originalName}.%{extension}"
+    fileType: application/pdf
+    attachments: (.*).pdf
   types:
     - type: 3play
       from: (.*)@vodafone.pt
       subject: (.*)fatura(.*)
-      attachments: (.*).pdf
-      fileName: ${receivedDate}_${originalName}.${extension}
-      fileMimeType: application/pdf
       mergeOrder: ASC
       folder: communications
       folderId: 111111111
+      attachments: ${filter.default.attachments}
+      fileName: ${filter.default.fileName}
+      fileMimeType: ${filter.default.fileType}
     - type: electricity
       from: (.*)@edp.pt
       subject: (.*)fatura(.*)
-      attachments: (.*).pdf
-      fileName: ${receivedDate}_${originalName}.${extension}
-      fileMimeType: application/pdf
       folder: electricity
       folderId: 111111112
+      attachments: ${filter.default.attachments}
+      fileName: ${filter.default.fileName}
+      fileMimeType: ${filter.default.fileType}
     - type: gas
       from: (.*)@galpenergia.com
       subject: (.*)Envio de Fatura(.*)
-      attachments: (.*).pdf
-      fileName: ${receivedDate}_${originalName}.${extension}
-      fileMimeType: application/pdf
       folder: Gas
       folderId: 111111113
+      attachments: ${filter.default.attachments}
+      fileName: ${filter.default.fileName}
+      fileMimeType: ${filter.default.fileType}

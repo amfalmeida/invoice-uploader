@@ -8,7 +8,11 @@ import java.util.List;
 @ConfigurationProperties("filter")
 public class FilterProperties {
 
-    private List<EmailFilter> types = new ArrayList<>();
+    private List<EmailFilter> types;
+
+    FilterProperties() {
+        types = new ArrayList<>();
+    }
 
     public List<EmailFilter> getTypes() {
         return types;

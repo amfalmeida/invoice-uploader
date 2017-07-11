@@ -1,10 +1,9 @@
 package com.aalmeida.attachments.uploader;
 
-import com.aalmeida.attachments.uploader.email.Email;
+import com.aalmeida.attachments.uploader.email.EmailListener;
 import com.aalmeida.attachments.uploader.email.EmailMonitor;
 import com.aalmeida.attachments.uploader.tasks.Invoice;
 import com.aalmeida.attachments.uploader.tasks.StorageTask;
-import com.aalmeida.attachments.uploader.email.EmailListener;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +39,6 @@ public class ApplicationConfig implements Loggable {
     }
 
     @Bean
-    @Autowired
     public EmailListener emailListener(final FilterProperties filterProperties,
                                        final StorageTask storageTask) {
         return (id, email)  -> {
@@ -91,7 +89,6 @@ public class ApplicationConfig implements Loggable {
     }
 
     @Bean
-    @Autowired
     public EmailMonitor emailMonitor(final EmailListener emailListener) {
         final EmailMonitor emailMonitor = new EmailMonitor(emailHost, emailUsername, emailPassword, emailMonitorFolder,
                 emailAttachmentsTemporaryFolder, emailMonitorDaysOld, emailMonitorSubjectPattern);
