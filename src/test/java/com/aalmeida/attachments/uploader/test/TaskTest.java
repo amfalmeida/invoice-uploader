@@ -1,6 +1,6 @@
 package com.aalmeida.attachments.uploader.test;
 
-import com.aalmeida.attachments.uploader.FilterProperties;
+import com.aalmeida.attachments.uploader.config.FilterProperties;
 import com.aalmeida.attachments.uploader.tasks.Invoice;
 import com.aalmeida.attachments.uploader.tasks.StorageTask;
 import com.google.api.services.drive.Drive;

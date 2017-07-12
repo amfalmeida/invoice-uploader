@@ -1,4 +1,4 @@
-package com.aalmeida.attachments.uploader;
+package com.aalmeida.attachments.uploader.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -10,7 +10,7 @@ public class FilterProperties {
 
     private List<EmailFilter> types;
 
-    FilterProperties() {
+    public FilterProperties() {
         types = new ArrayList<>();
     }
 

@@ -25,7 +25,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 @Configuration
-public class GoogleConfiguration {
+public class GoogleConfig {
 
     @Value("${google.app.name}")
     private String googleAppName;

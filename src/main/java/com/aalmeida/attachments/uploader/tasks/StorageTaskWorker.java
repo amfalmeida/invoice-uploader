@@ -1,8 +1,8 @@
 package com.aalmeida.attachments.uploader.tasks;
 
-import com.aalmeida.attachments.uploader.FilterProperties;
+import com.aalmeida.attachments.uploader.config.FilterProperties;
 import com.aalmeida.attachments.uploader.Constants;
-import com.aalmeida.attachments.uploader.Loggable;
+import com.aalmeida.attachments.uploader.logging.Loggable;
 import com.aalmeida.utils.DateUtils;
 import com.aalmeida.utils.FileUtils;
 import com.google.api.client.http.FileContent;

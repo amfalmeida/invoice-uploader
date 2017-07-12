@@ -1,6 +1,6 @@
 package com.aalmeida.attachments.uploader.email;
 
-import com.aalmeida.attachments.uploader.Loggable;
+import com.aalmeida.attachments.uploader.logging.Loggable;
 import com.aalmeida.utils.FileUtils;
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPMessage;
