@@ -62,15 +62,6 @@ public class EmailWorker implements Loggable, EmailListener {
                 } else if (logger().isDebugEnabled()) {
                     logger().debug("From address and subject don't match. filter={}, email={}", filter, email);
                 }
-
-                if (files.isEmpty()) {
-                    email.getAttachments()
-                            .forEach(file -> {
-                                if (file.exists()) {
-                                    file.delete();
-                                }
-                            });
-                }
             });
         } catch (Exception e) {
             logger().error("Failed to process received email. email={}", email, e);
