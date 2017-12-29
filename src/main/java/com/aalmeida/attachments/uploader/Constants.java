@@ -4,5 +4,6 @@ public final class Constants {
 
     public final class Logger {
         public static final String MDC_KEY_TYPE = "type";
+        public static final String MDC_KEY_EMAIL_ID = "emailId";
     }
 }

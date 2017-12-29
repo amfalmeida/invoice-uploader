@@ -1,8 +1,7 @@
 package com.aalmeida.attachments.uploader.test;
 
-import com.aalmeida.attachments.uploader.FilterProperties;
-import com.aalmeida.attachments.uploader.tasks.Invoice;
-import com.aalmeida.attachments.uploader.tasks.StorageTask;
+import com.aalmeida.attachments.uploader.properties.FilterProperties;
+import com.aalmeida.attachments.uploader.model.Invoice;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.FileList;
 import org.junit.Assert;

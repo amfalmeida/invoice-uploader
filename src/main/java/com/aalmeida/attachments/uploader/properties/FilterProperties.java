@@ -1,4 +1,4 @@
-package com.aalmeida.attachments.uploader;
+package com.aalmeida.attachments.uploader.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

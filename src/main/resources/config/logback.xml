@@ -2,7 +2,7 @@
 <configuration>
     <property name="LOG_PATH" value="logs/"/>
     <property name="LOG_FILE" value="invoice-uploader"/>
-    <property name="PATTERN" value="%date{HH:mm:ss.SSS}|%-4relative|%thread|%-5level|%logger{35}|%X{type}|%msg%n"/>
+    <property name="PATTERN" value="%date{HH:mm:ss.SSS}|%-4relative|%thread|%-5level|%logger{35}|%X{emailId}|%X{type}|%msg%n"/>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>

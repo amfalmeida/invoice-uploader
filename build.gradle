@@ -31,6 +31,9 @@ configurations {
 
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    compile "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+
+    compile "io.reactivex.rxjava2:rxjava:2.1.7"
 
     compile 'com.google.api-client:google-api-client:1.22.0'
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.22.0'
@@ -52,7 +55,7 @@ dependencies {
 jar {
     baseName = project.name
     version = project.version
-    exclude "**/config"
+    exclude "**/resources/config"
     exclude "**/service.conf"
 }
 

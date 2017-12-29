@@ -1,6 +1,5 @@
-package com.aalmeida.attachments.uploader;
+package com.aalmeida.attachments.uploader.google;
 
-import com.aalmeida.attachments.uploader.tasks.StorageTask;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -33,12 +32,6 @@ public class GoogleConfiguration {
     private String googleClientId;
     @Value("${google.client.secret}")
     private String googleClientSecret;
-
-    @Bean
-    @Autowired
-    public StorageTask storageTask(final Drive drive) {
-        return new StorageTask(drive);
-    }
 
     @Bean
     public GoogleClientSecrets getCredentialSecrets() {
@@ -85,5 +78,11 @@ public class GoogleConfiguration {
                           final Credential credential) {
         return new Drive.Builder(httpTransport, jsonFactory, credential)
                 .setApplicationName(googleAppName).build();
+    }
+
+    @Bean
+    @Autowired
+    public Storage storage(final Drive drive) {
+        return new Storage(drive);
     }
 }
