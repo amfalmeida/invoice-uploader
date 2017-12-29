@@ -1,8 +1,8 @@
 package com.aalmeida.attachments.uploader.tasks;
 
-import com.aalmeida.attachments.uploader.FilterProperties;
+import com.aalmeida.attachments.uploader.config.FilterProperties;
 import com.aalmeida.attachments.uploader.Constants;
-import com.aalmeida.attachments.uploader.Loggable;
+import com.aalmeida.attachments.uploader.logging.Loggable;
 import com.aalmeida.utils.DateUtils;
 import com.aalmeida.utils.FileUtils;
 import com.google.api.client.http.FileContent;
@@ -162,8 +162,8 @@ public class StorageTaskWorker implements Loggable, Callable<Invoice> {
     }
 
     private String getFileName(final java.io.File file, final String namePattern, final long receivedDate) {
-        return namePattern.replace("${receivedDate}", DateUtils.getDate(receivedDate))
-                .replace("${originalName}", FileUtils.getName(file.getName()))
-                .replace("${extension}", FileUtils.getExtension(file.getName()));
+        return namePattern.replace("%{receivedDate}", DateUtils.getDate(receivedDate))
+                .replace("%{originalName}", FileUtils.getName(file.getName()))
+                .replace("%{extension}", FileUtils.getExtension(file.getName()));
     }
 }

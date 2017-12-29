@@ -1,6 +1,6 @@
 package com.aalmeida.attachments.uploader.tasks;
 
-import com.aalmeida.attachments.uploader.FilterProperties;
+import com.aalmeida.attachments.uploader.config.FilterProperties;
 
 import java.io.File;
 import java.util.List;

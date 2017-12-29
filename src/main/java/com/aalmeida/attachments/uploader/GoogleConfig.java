@@ -25,7 +25,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 @Configuration
-public class GoogleConfiguration {
+public class GoogleConfig {
 
     @Value("${google.app.name}")
     private String googleAppName;
@@ -35,7 +35,6 @@ public class GoogleConfiguration {
     private String googleClientSecret;
 
     @Bean
-    @Autowired
     public StorageTask storageTask(final Drive drive) {
         return new StorageTask(drive);
     }
