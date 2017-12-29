@@ -66,38 +66,43 @@ test {
     exclude '**/*'
 }
 
-task copyService(type: Copy) {
-    from configurations.service
-    into "$buildDir/dist/"
-    rename 'winsw-1.18-bin', project.name + '-' + project.version
-}
 task dist() {
-    delete 'build/dist'
-    copy {
-        from jar
-        into 'build/dist/'
-    }
-    copy {
-        from 'src/main/resources/service.conf'
-        into 'build/dist/'
-        rename 'service', project.name + '-' + project.version
-    }
-    copy {
-        from 'src/main/resources/config'
-        into 'build/dist/config'
-    }
-    copy {
-        from 'src/main/dist'
-        into 'build/dist/'
-        filter{
-            it.replaceAll('@project.id@', gradle.distId)
-                    .replaceAll('@project.name@', gradle.distName)
-                    .replaceAll('@project.description@', gradle.distDescription)
-                    .replaceAll('@projectName@', project.name)
-                    .replaceAll('@projectVersion@', project.version)
+    doFirst {
+        delete 'build/dist'
+
+        copy {
+            from configurations.service
+            into "$buildDir/dist/"
+            rename 'winsw-1.18-bin', project.name + '-' + project.version
         }
-        rename 'service', project.name + '-' + project.version
+        copy {
+            from 'src/main/resources/service.conf'
+            into 'build/dist/'
+            rename 'service', project.name + '-' + project.version
+        }
+        copy {
+            from 'src/main/resources/config'
+            into 'build/dist/config'
+        }
+        copy {
+            from 'src/main/dist'
+            into 'build/dist/'
+            filter{
+                it.replaceAll('@project.id@', gradle.distId)
+                        .replaceAll('@project.name@', gradle.distName)
+                        .replaceAll('@project.description@', gradle.distDescription)
+                        .replaceAll('@projectName@', project.name)
+                        .replaceAll('@projectVersion@', project.version)
+            }
+            rename 'service', project.name + '-' + project.version
+        }
+    }
+
+    doLast {
+        copy {
+            from jar
+            into 'build/dist/'
+        }
     }
 }
 dist.dependsOn build
-dist.dependsOn copyService

@@ -8,9 +8,9 @@ public abstract class AbstractTask {
         next = pNext;
     }
 
-    abstract protected void handleRequest(final Invoice invoice);
+    abstract void handleRequest(final Invoice invoice);
 
-    void handleNext(final Invoice invoice) {
+    void handleNext( final Invoice invoice) {
         if (next != null) {
             next.handleRequest(invoice);
         }
