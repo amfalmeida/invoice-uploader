@@ -89,18 +89,13 @@ task dist() {
         from 'src/main/resources/config'
         into 'build/dist/config'
     }
-    copy {
-        from 'src/main/dist'
-        into 'build/dist/'
-        filter{
-            it.replaceAll('@project.id@', gradle.distId)
-                    .replaceAll('@project.name@', gradle.distName)
-                    .replaceAll('@project.description@', gradle.distDescription)
-                    .replaceAll('@projectName@', project.name)
-                    .replaceAll('@projectVersion@', project.version)
+
+    doLast {
+        copy {
+            from jar
+            into 'build/dist/'
         }
         rename 'service', project.name
     }
 }
 dist.dependsOn build
-dist.dependsOn copyService

@@ -2,7 +2,6 @@ package com.aalmeida.attachments.uploader;
 
 import com.aalmeida.attachments.uploader.email.EmailMonitor;
 import com.aalmeida.attachments.uploader.logging.Loggable;
-import com.aalmeida.attachments.uploader.properties.FilterProperties;
 import com.aalmeida.attachments.uploader.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
