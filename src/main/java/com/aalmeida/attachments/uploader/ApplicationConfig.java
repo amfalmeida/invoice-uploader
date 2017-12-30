@@ -2,6 +2,7 @@ package com.aalmeida.attachments.uploader;
 
 import com.aalmeida.attachments.uploader.email.EmailMonitor;
 import com.aalmeida.attachments.uploader.logging.Loggable;
+import com.aalmeida.attachments.uploader.properties.FilterProperties;
 import com.aalmeida.attachments.uploader.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -37,9 +38,7 @@ public class ApplicationConfig implements Loggable {
 
     @Bean
     public EmailMonitor emailMonitor() {
-        final EmailMonitor emailMonitor = new EmailMonitor(emailHost, emailUsername, emailPassword, emailMonitorFolder,
+        return new EmailMonitor(emailHost, emailUsername, emailPassword, emailMonitorFolder,
                 emailAttachmentsTemporaryFolder, emailMonitorDaysOld, emailMonitorSubjectPattern);
-        //emailMonitor.setListener(emailListener);
-        return emailMonitor;
     }
 }
