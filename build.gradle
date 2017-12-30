@@ -1,5 +1,5 @@
 group 'com.aalmeida'
-version '1.0'
+version '1.1'
 
 buildscript {
     ext {
@@ -49,7 +49,7 @@ dependencies {
     testCompile "org.jmockit:jmockit:1.31"
     testCompile "junit:junit:4.12"
 
-    service "com.sun.winsw:winsw:1.18:bin@exe"
+    service "com.sun.winsw:winsw:2.1.2:bin@exe"
 }
 
 jar {
@@ -72,7 +72,7 @@ test {
 task copyService(type: Copy) {
     from configurations.service
     into "$buildDir/dist/"
-    rename 'winsw-1.18-bin', project.name + '-' + project.version
+    rename 'winsw-2.1.2-bin', project.name
 }
 task dist() {
     delete 'build/dist'
@@ -83,7 +83,7 @@ task dist() {
     copy {
         from 'src/main/resources/service.conf'
         into 'build/dist/'
-        rename 'service', project.name + '-' + project.version
+        rename 'service', project.name
     }
     copy {
         from 'src/main/resources/config'
@@ -99,7 +99,7 @@ task dist() {
                     .replaceAll('@projectName@', project.name)
                     .replaceAll('@projectVersion@', project.version)
         }
-        rename 'service', project.name + '-' + project.version
+        rename 'service', project.name
     }
 }
 dist.dependsOn build

@@ -50,8 +50,8 @@ public class TaskTest {
             Mockito.doReturn(emailFilter).when(invoice).getEmailFilter();
             Mockito.doReturn(System.currentTimeMillis()).when(invoice).getReceivedDate();
 
-            StorageTask storageTask = new StorageTask(drive);
-            storageTask.handleRequest(invoice);
+            /*StorageTask storageTask = new StorageTask(drive);
+            storageTask.handleRequest(invoice);*/
 
             Mockito.when(drive.files().list().execute()).thenReturn(fileList);
 
