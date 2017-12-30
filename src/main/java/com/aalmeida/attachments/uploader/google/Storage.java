@@ -76,9 +76,6 @@ public class Storage implements Loggable {
                     invoice.getEmailFilter().getFolderId());
         }
 
-        // delete processed files
-        deleteFiles(invoice.getFiles());
-
         if (fileToUpload.delete()) {
             if (logger().isTraceEnabled()) {
                 logger().trace("File deleted.");
@@ -153,13 +150,6 @@ public class Storage implements Loggable {
         pdfMergerUtility.setDestinationFileName(mergedFile.getAbsolutePath());
         pdfMergerUtility.mergeDocuments(MemoryUsageSetting.setupMainMemoryOnly());
         return mergedFile;
-    }
-
-    private void deleteFiles(final List<File> files) {
-        if (files == null) {
-            return;
-        }
-        files.forEach(f -> f.delete());
     }
 
     private String getFileName(final java.io.File file, final String namePattern, final long receivedDate) {
