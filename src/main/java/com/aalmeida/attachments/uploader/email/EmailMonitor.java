@@ -1,6 +1,9 @@
 package com.aalmeida.attachments.uploader.email;
 
 import com.aalmeida.attachments.uploader.logging.Loggable;
+import com.aalmeida.attachments.uploader.model.Attachment;
+import com.aalmeida.attachments.uploader.model.Email;
+import com.aalmeida.attachments.uploader.model.InvoiceDocument;
 import com.aalmeida.attachments.uploader.service.EmailService;
 import com.aalmeida.utils.FileUtils;
 import com.sun.mail.imap.IMAPFolder;
@@ -13,7 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.mail.*;
+import javax.mail.Address;
+import javax.mail.BodyPart;
+import javax.mail.FetchProfile;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
 import javax.mail.event.MessageCountEvent;
 import javax.mail.event.MessageCountListener;
 import javax.mail.internet.InternetAddress;
@@ -21,9 +31,12 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.search.ComparisonTerm;
 import javax.mail.search.ReceivedDateTerm;
 import javax.mail.util.SharedByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 public class EmailMonitor implements Loggable {
 
@@ -175,7 +188,7 @@ public class EmailMonitor implements Loggable {
                                 .subscribe(invoice -> {
                                     if (invoice != null) {
                                         if (invoice.getFiles() != null) {
-                                            invoice.getFiles().forEach(f -> f.delete());
+                                            invoice.getFiles().forEach(f -> f.getFile().delete());
                                         }
                                         logger().info("Invoice processed invoice={}.", invoice);
                                     }
@@ -221,7 +234,7 @@ public class EmailMonitor implements Loggable {
         return false;
     }
 
-    private List<File> getAttachments(final MimeMultipart mp) throws IOException, MessagingException {
+    private List<InvoiceDocument> getAttachments(final MimeMultipart mp) throws IOException, MessagingException {
         List<Attachment> attachments = null;
         for (int part = 0; part < mp.getCount(); part++) {
             BodyPart b = mp.getBodyPart(part);
@@ -240,15 +253,15 @@ public class EmailMonitor implements Loggable {
             }
         }
 
-        List<File> filesSaved = null;
+        List<InvoiceDocument> filesSaved = null;
         if (attachments != null && !attachments.isEmpty()) {
             // order attachments list
             attachments.sort((o1, o2) -> o2.getName().compareTo(o1.getName()));
             // store files
             filesSaved = new ArrayList<>(attachments.size());
             for (Attachment attachment : attachments) {
-                filesSaved.add(FileUtils.saveFile(attachment.getContent(), temporaryFolder, attachment.getName(),
-                        Integer.toString(filesSaved.size())));
+                filesSaved.add(new InvoiceDocument(FileUtils.saveFile(attachment.getContent(), temporaryFolder,
+                        attachment.getName(), Integer.toString(filesSaved.size())), attachment.getName()));
             }
         }
         return filesSaved;

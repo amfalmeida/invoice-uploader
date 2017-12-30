@@ -7,24 +7,24 @@ import java.util.List;
 
 public class Invoice {
 
-    private List<File> files;
+    private List<InvoiceDocument> files;
     private FilterProperties.EmailFilter emailFilter;
     private long receivedDate;
 
     public Invoice() {
     }
 
-    public Invoice(List<File> files, FilterProperties.EmailFilter emailFilter, long receivedDate) {
+    public Invoice(List<InvoiceDocument> files, FilterProperties.EmailFilter emailFilter, long receivedDate) {
         this.files = files;
         this.emailFilter = emailFilter;
         this.receivedDate = receivedDate;
     }
 
-    public List<File> getFiles() {
+    public List<InvoiceDocument> getFiles() {
         return files;
     }
 
-    public void setFiles(List<File> files) {
+    public void setFiles(List<InvoiceDocument> files) {
         this.files = files;
     }
 
