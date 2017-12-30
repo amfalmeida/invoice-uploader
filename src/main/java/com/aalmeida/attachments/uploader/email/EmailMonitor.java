@@ -174,6 +174,9 @@ public class EmailMonitor implements Loggable {
                                 .subscribeOn(Schedulers.io())
                                 .subscribe(invoice -> {
                                     if (invoice != null) {
+                                        if (invoice.getFiles() != null) {
+                                            invoice.getFiles().forEach(f -> f.delete());
+                                        }
                                         logger().info("Invoice processed invoice={}.", invoice);
                                     }
                                 }, e -> logger().error("Failed to process email. email={}", email, e));

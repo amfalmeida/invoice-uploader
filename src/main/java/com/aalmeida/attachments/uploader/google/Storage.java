@@ -75,6 +75,7 @@ public class Storage implements Loggable {
             logger().warn("Folder not found. folder={}, folderId={}", invoice.getEmailFilter().getFolder(),
                     invoice.getEmailFilter().getFolderId());
         }
+
         if (fileToUpload.delete()) {
             if (logger().isTraceEnabled()) {
                 logger().trace("File deleted.");
