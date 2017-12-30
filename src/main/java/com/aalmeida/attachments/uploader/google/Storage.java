@@ -1,6 +1,5 @@
 package com.aalmeida.attachments.uploader.google;
 
-import com.aalmeida.attachments.uploader.Constants;
 import com.aalmeida.attachments.uploader.logging.Loggable;
 import com.aalmeida.attachments.uploader.model.Invoice;
 import com.aalmeida.attachments.uploader.properties.FilterProperties;
@@ -12,7 +11,6 @@ import com.google.api.services.drive.model.FileList;
 import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
-import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -29,7 +27,7 @@ public class Storage implements Loggable {
         this.drive = pDrive;
     }
 
-    public Invoice upload(final Invoice invoice) throws Exception {
+    public void upload(final Invoice invoice) throws Exception {
         final String filename;
         final java.io.File fileToUpload;
 
@@ -82,7 +80,6 @@ public class Storage implements Loggable {
                 logger().trace("File deleted.");
             }
         }
-        return invoice;
     }
 
     private com.google.api.services.drive.model.File searchFolder(final String folderId) throws IOException {
