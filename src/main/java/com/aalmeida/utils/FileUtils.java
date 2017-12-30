@@ -2,6 +2,7 @@ package com.aalmeida.utils;
 
 import java.io.*;
 import java.util.List;
+import java.util.UUID;
 
 public final class FileUtils {
 
@@ -22,7 +23,8 @@ public final class FileUtils {
         if (suffix != null) {
             final String name = getName(fileName);
             final String extension = getExtension(fileName);
-            filePath = String.format("%s%s%s%s%s.%s", strPath, name, SUFFIX_SEPARATOR, suffix, SUFFIX_SEPARATOR, extension);
+            filePath = String.format("%s#%s#%s%s%s%s.%s", strPath, UUID.randomUUID(), name,
+                    SUFFIX_SEPARATOR, suffix, SUFFIX_SEPARATOR, extension);
         }
         final File f = new File(filePath);
         try (FileOutputStream fos = new FileOutputStream(f)) {

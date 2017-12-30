@@ -1,19 +1,19 @@
 package com.aalmeida.attachments.uploader.google;
 
+import com.aalmeida.attachments.uploader.comparator.InvoiceDocumentComparator;
 import com.aalmeida.attachments.uploader.logging.Loggable;
 import com.aalmeida.attachments.uploader.model.Invoice;
+import com.aalmeida.attachments.uploader.model.InvoiceDocument;
 import com.aalmeida.attachments.uploader.properties.FilterProperties;
 import com.aalmeida.utils.DateUtils;
 import com.aalmeida.utils.FileUtils;
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.FileList;
-import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -36,20 +36,20 @@ public class Storage implements Loggable {
         }
 
         if (invoice.getFiles().size() > 1) {
-            final List<File> orderedFiles = invoice.getFiles();
+            final List<InvoiceDocument> orderedFiles = invoice.getFiles();
             if (invoice.getEmailFilter().getMergeOrder() == FilterProperties.EmailFilter.MergeOrder.ASC) {
-                orderedFiles.sort(NameFileComparator.NAME_INSENSITIVE_COMPARATOR);
+                orderedFiles.sort(new InvoiceDocumentComparator(InvoiceDocumentComparator.SortOrder.ASC));
             } else {
-                orderedFiles.sort(NameFileComparator.NAME_INSENSITIVE_REVERSE);
+                orderedFiles.sort(new InvoiceDocumentComparator(InvoiceDocumentComparator.SortOrder.DESC));
             }
 
-            filename = getFileName(orderedFiles.get(0), invoice.getEmailFilter().getFileName(),
+            filename = getFileName(orderedFiles.get(0).getName(), invoice.getEmailFilter().getFileName(),
                     invoice.getReceivedDate());
 
             fileToUpload = mergeFiles(orderedFiles, filename);
         } else {
-            fileToUpload = invoice.getFiles().get(0);
-            filename = getFileName(fileToUpload, invoice.getEmailFilter().getFileName(),
+            fileToUpload = invoice.getFiles().get(0).getFile();
+            filename = getFileName(invoice.getFiles().get(0).getName(), invoice.getEmailFilter().getFileName(),
                     invoice.getReceivedDate());
         }
 
@@ -134,15 +134,15 @@ public class Storage implements Loggable {
                 .execute();
     }
 
-    private java.io.File mergeFiles(final List<java.io.File> files, final String finalName) throws IOException {
-        final java.io.File mergedFile = new java.io.File (String.format("%s%s%s", files.get(0).getParent(),
+    private java.io.File mergeFiles(final List<InvoiceDocument> files, final String finalName) throws IOException {
+        final java.io.File mergedFile = new java.io.File (String.format("%s%s%s", files.get(0).getFile().getParent(),
                 java.io.File.separator, finalName));
         final PDFMergerUtility pdfMergerUtility = new PDFMergerUtility();
-        for (final java.io.File file : files) {
+        for (final InvoiceDocument file : files) {
             if (logger().isTraceEnabled()) {
                 logger().trace("Add file to be merged. file={}", file);
             }
-            pdfMergerUtility.addSource(file);
+            pdfMergerUtility.addSource(file.getFile());
         }
         if (logger().isTraceEnabled()) {
             logger().trace("File merged. mergedFile={}", mergedFile);
@@ -152,9 +152,9 @@ public class Storage implements Loggable {
         return mergedFile;
     }
 
-    private String getFileName(final java.io.File file, final String namePattern, final long receivedDate) {
+    private String getFileName(final String fileName, final String namePattern, final long receivedDate) {
         return namePattern.replace("%{receivedDate}", DateUtils.getDate(receivedDate))
-                .replace("%{originalName}", FileUtils.getName(file.getName()))
-                .replace("%{extension}", FileUtils.getExtension(file.getName()));
+                .replace("%{originalName}", FileUtils.getName(fileName))
+                .replace("%{extension}", FileUtils.getExtension(fileName));
     }
 }
