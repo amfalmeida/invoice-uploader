@@ -37,42 +37,40 @@ public class EmailService implements Loggable {
                     }
                     s.onComplete();
                 }
-                filterProperties.getTypes().forEach(filter -> {
-                    if (email.getFromAddress().matches(filter.getFrom())
-                            && email.getSubject().matches(filter.getSubject())) {
-                        if (email.getAttachments() != null) {
-                            final List<File> files = new ArrayList<>();
-                            email.getAttachments()
-                                    .forEach(file -> {
-                                        if (file.getName().matches(filter.getAttachments())) {
-                                            files.add(file);
-                                        } else {
-                                            file.delete();
-                                        }
-                                    });
-                            if (!files.isEmpty()) {
-                                if (logger().isDebugEnabled()) {
-                                    logger().debug("Going to delegate to model. files={}, filter={}", files, filter);
-                                }
-                                try {
-                                    MDC.put(Constants.Logger.MDC_KEY_TYPE, filter.getType());
 
-                                    final Invoice invoice = new Invoice(files, filter, email.getReceivedDate());
-                                    storage.upload(invoice);
-
-                                    s.onNext(invoice);
-                                } catch (Exception e) {
-                                    s.onError(e);
-                                } finally {
-                                    MDC.remove(Constants.Logger.MDC_KEY_TYPE);
-                                }
-                            } else if (logger().isDebugEnabled()) {
-                                logger().debug("No files matches.");
+                filterProperties.getTypes().stream().filter(filter -> email.getFromAddress().matches(filter.getFrom())
+                        && email.getSubject().matches(filter.getSubject())).forEach(filter -> {
+                    if (email.getAttachments() != null) {
+                        final List<File> files = new ArrayList<>();
+                        email.getAttachments()
+                                .forEach(file -> {
+                                    if (file.getName().matches(filter.getAttachments())) {
+                                        files.add(file);
+                                    } else {
+                                        file.delete();
+                                    }
+                                });
+                        if (!files.isEmpty()) {
+                            if (logger().isDebugEnabled()) {
+                                logger().debug("Going to delegate to model. files={}, filter={}", files, filter);
                             }
+                            try {
+                                MDC.put(Constants.Logger.MDC_KEY_TYPE, filter.getType());
+
+                                final Invoice invoice = new Invoice(files, filter, email.getReceivedDate());
+                                storage.upload(invoice);
+
+                                s.onNext(invoice);
+                            } catch (Exception e) {
+                                s.onError(e);
+                            } finally {
+                                MDC.remove(Constants.Logger.MDC_KEY_TYPE);
+                            }
+                        } else if (logger().isDebugEnabled()) {
+                            logger().debug("No files matches.");
                         }
-                    } else if (logger().isDebugEnabled()) {
-                        logger().debug("From address and subject don't match. filter={}, email={}", filter, email);
                     }
+                    s.onComplete();
                 });
             } catch (Exception e) {
                 logger().error("Failed to process received email. email={}", email, e);
