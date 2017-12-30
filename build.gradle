@@ -75,19 +75,35 @@ task copyService(type: Copy) {
     rename 'winsw-2.1.2-bin', project.name
 }
 task dist() {
-    delete 'build/dist'
-    copy {
-        from jar
-        into 'build/dist/'
-    }
-    copy {
-        from 'src/main/resources/service.conf'
-        into 'build/dist/'
-        rename 'service', project.name
-    }
-    copy {
-        from 'src/main/resources/config'
-        into 'build/dist/config'
+    doFirst {
+        delete 'build/dist'
+
+        copy {
+            from configurations.service
+            into "$buildDir/dist/"
+            rename 'winsw-2.1.2-bin', project.name
+        }
+        copy {
+            from 'src/main/resources/service.conf'
+            into 'build/dist/'
+            rename 'service', project.name
+        }
+        copy {
+            from 'src/main/resources/config'
+            into 'build/dist/config'
+        }
+        copy {
+            from 'src/main/dist'
+            into 'build/dist/'
+            filter {
+                it.replaceAll('@project.id@', gradle.distId)
+                        .replaceAll('@project.name@', gradle.distName)
+                        .replaceAll('@project.description@', gradle.distDescription)
+                        .replaceAll('@projectName@', project.name)
+                        .replaceAll('@projectVersion@', project.version)
+            }
+            rename 'service', project.name
+        }
     }
 
     doLast {
@@ -95,7 +111,7 @@ task dist() {
             from jar
             into 'build/dist/'
         }
-        rename 'service', project.name
     }
 }
+dist.dependsOn copyService
 dist.dependsOn build
