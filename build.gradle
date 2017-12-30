@@ -1,5 +1,5 @@
 group 'com.aalmeida'
-version '1.0'
+version '1.1'
 
 buildscript {
     ext {
@@ -31,6 +31,9 @@ configurations {
 
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    compile "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+
+    compile "io.reactivex.rxjava2:rxjava:2.1.7"
 
     compile 'com.google.api-client:google-api-client:1.22.0'
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.22.0'
@@ -46,13 +49,13 @@ dependencies {
     testCompile "org.jmockit:jmockit:1.31"
     testCompile "junit:junit:4.12"
 
-    service "com.sun.winsw:winsw:1.18:bin@exe"
+    service "com.sun.winsw:winsw:2.1.2:bin@exe"
 }
 
 jar {
     baseName = project.name
     version = project.version
-    exclude "**/config"
+    exclude "**/resources/config"
     exclude "**/service.conf"
 }
 
@@ -66,36 +69,25 @@ test {
     exclude '**/*'
 }
 
+task copyService(type: Copy) {
+    from configurations.service
+    into "$buildDir/dist/"
+    rename 'winsw-2.1.2-bin', project.name
+}
 task dist() {
-    doFirst {
-        delete 'build/dist'
-
-        copy {
-            from configurations.service
-            into "$buildDir/dist/"
-            rename 'winsw-1.18-bin', project.name + '-' + project.version
-        }
-        copy {
-            from 'src/main/resources/service.conf'
-            into 'build/dist/'
-            rename 'service', project.name + '-' + project.version
-        }
-        copy {
-            from 'src/main/resources/config'
-            into 'build/dist/config'
-        }
-        copy {
-            from 'src/main/dist'
-            into 'build/dist/'
-            filter{
-                it.replaceAll('@project.id@', gradle.distId)
-                        .replaceAll('@project.name@', gradle.distName)
-                        .replaceAll('@project.description@', gradle.distDescription)
-                        .replaceAll('@projectName@', project.name)
-                        .replaceAll('@projectVersion@', project.version)
-            }
-            rename 'service', project.name + '-' + project.version
-        }
+    delete 'build/dist'
+    copy {
+        from jar
+        into 'build/dist/'
+    }
+    copy {
+        from 'src/main/resources/service.conf'
+        into 'build/dist/'
+        rename 'service', project.name
+    }
+    copy {
+        from 'src/main/resources/config'
+        into 'build/dist/config'
     }
 
     doLast {
@@ -103,6 +95,7 @@ task dist() {
             from jar
             into 'build/dist/'
         }
+        rename 'service', project.name
     }
 }
 dist.dependsOn build
