@@ -1,11 +1,15 @@
 package com.aalmeida.attachments.uploader.email;
 
 import com.aalmeida.attachments.uploader.logging.Loggable;
+import com.aalmeida.attachments.uploader.service.EmailService;
 import com.aalmeida.utils.FileUtils;
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPMessage;
 import com.sun.mail.util.BASE64DecoderStream;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -35,9 +39,10 @@ public class EmailMonitor implements Loggable {
     private final String temporaryFolder;
     private final int daysOld;
     private final String subjectPattern;
-
-    private EmailListener listener;
     private Folder folder;
+
+    @Autowired
+    private EmailService emailService;
 
     public EmailMonitor(final String pImapHost, final String pUsername, final String pPassword,
                         final String pMonitorFolder, final String pTemporaryFolder, final int pDaysOld,
@@ -90,30 +95,30 @@ public class EmailMonitor implements Loggable {
             }
         });
 
-        new Thread(() -> {
-            try {
-                final Date beginDate = getBeginDate(daysOld);
-                if (logger().isDebugEnabled()) {
-                    logger().debug("Checking emails on folder '{}' with date >= '{}'.", monitorFolder, beginDate);
-                }
-                final Message[] messages = folder.search(new ReceivedDateTerm(ComparisonTerm.GE, beginDate));
-                final FetchProfile fetchProfile = new FetchProfile();
-                fetchProfile.add(FetchProfile.Item.ENVELOPE);
-                folder.fetch(messages, fetchProfile);
-                if (logger().isTraceEnabled()) {
-                    logger().trace("Going to extract data and processing '{}' emails.", messages.length);
-                }
-                for (final Message message : messages) {
-                    try {
-                        checkAndProcessEmail(message, subjectPattern);
-                    } catch (Exception e) {
-                        logger().error("Failed to check and process the email.", e);
-                    }
-                }
-            } catch (MessagingException e) {
-                logger().error("Failed to get emails.", e);
+        try {
+            final Date beginDate = getBeginDate(daysOld);
+            if (logger().isDebugEnabled()) {
+                logger().debug("Checking emails on folder '{}' with date >= '{}'.", monitorFolder, beginDate);
             }
-        }).start();
+            final Message[] messages = folder.search(new ReceivedDateTerm(ComparisonTerm.GE, beginDate));
+            final FetchProfile fetchProfile = new FetchProfile();
+            fetchProfile.add(FetchProfile.Item.ENVELOPE);
+            folder.fetch(messages, fetchProfile);
+            if (logger().isTraceEnabled()) {
+                logger().trace("Going to extract data and processing '{}' emails.", messages.length);
+            }
+            for (final Message message : messages) {
+                try {
+                    checkAndProcessEmail(message, subjectPattern)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe();
+                } catch (Exception e) {
+                    logger().error("Failed to check and process the email.", e);
+                }
+            }
+        } catch (MessagingException e) {
+            logger().error("Failed to get emails.", e);
+        }
 
         if (folder instanceof IMAPFolder) {
             final IMAPFolder f = (IMAPFolder) folder;
@@ -141,42 +146,46 @@ public class EmailMonitor implements Loggable {
         }
     }
 
-    public void setListener(final EmailListener listener) {
-        this.listener = listener;
-    }
-
     @PreDestroy
     public void destroy() throws MessagingException {
         folder.close(true);
     }
 
-    private void checkAndProcessEmail(final Message message, final String subjectSearchPattern) throws MessagingException {
-        if (logger().isTraceEnabled()) {
-            logger().trace("Checking and processing email. subject='{}'", message.getSubject());
-        }
-        if (!emailMatch(message, subjectSearchPattern)) {
+    private Observable<Void> checkAndProcessEmail(final Message message, final String subjectSearchPattern) {
+        return Observable.create(s -> {
             if (logger().isTraceEnabled()) {
-                logger().trace("Email subject doesn't match the search pattern. subject='{}', subjectPattern='{}'",
-                        message.getSubject(), subjectSearchPattern);
+                logger().trace("Checking and processing email. subject='{}'", message.getSubject());
             }
-            return;
-        }
-        if (listener == null) {
-            if (logger().isWarnEnabled()) {
-                logger().warn("Listener is null.");
+            if (!emailMatch(message, subjectSearchPattern)) {
+                if (logger().isTraceEnabled()) {
+                    logger().trace("Email subject doesn't match the search pattern. subject='{}', subjectPattern='{}'",
+                            message.getSubject(), subjectSearchPattern);
+                }
+                return;
             }
-        }
-        ((IMAPMessage) message).setPeek(true);
-        final Email email = fetchEmailData(message);
-        if (email != null) {
-            if (logger().isTraceEnabled()) {
-                logger().trace("Email added to be processed. email='{}'", email);
+            if (emailService == null) {
+                if (logger().isWarnEnabled()) {
+                    logger().warn("Email service is null.");
+                }
             }
-            listener.emailReceived(((IMAPMessage) message).getMessageID(), email);
-        }
+            ((IMAPMessage) message).setPeek(true);
+
+            final Email email = fetchEmailData(message);
+            if (email != null) {
+                if (logger().isTraceEnabled()) {
+                    logger().trace("Email added to be processed. email='{}'", email);
+                }
+                try {
+                    emailService.emailReceived(((IMAPMessage) message).getMessageID(), email);
+                    s.onComplete();
+                } catch (Exception e) {
+                    s.onError(e);
+                }
+            }
+        });
     }
 
-    private Email fetchEmailData(final Message message) {
+    private Email fetchEmailData(final Message message) throws IOException, MessagingException {
         try {
             final Email email = new Email();
             email.setSubject(message.getSubject());
@@ -192,8 +201,8 @@ public class EmailMonitor implements Loggable {
             return email;
         } catch (MessagingException | IOException e) {
             logger().error("Failed to fetch email.", e);
+            throw e;
         }
-        return null;
     }
 
     private boolean emailMatch(final Message message, final String subjectSearchPattern) throws MessagingException {

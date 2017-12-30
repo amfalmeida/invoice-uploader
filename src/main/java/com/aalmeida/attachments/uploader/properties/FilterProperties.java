@@ -1,4 +1,4 @@
-package com.aalmeida.attachments.uploader.config;
+package com.aalmeida.attachments.uploader.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -8,11 +8,7 @@ import java.util.List;
 @ConfigurationProperties("filter")
 public class FilterProperties {
 
-    private List<EmailFilter> types;
-
-    public FilterProperties() {
-        types = new ArrayList<>();
-    }
+    private List<EmailFilter> types = new ArrayList<>();
 
     public List<EmailFilter> getTypes() {
         return types;
@@ -40,11 +36,7 @@ public class FilterProperties {
         private String fileMimeType;
         private String folder;
         private String folderId;
-        private MergeOrder mergeOrder;
-
-        public EmailFilter() {
-            mergeOrder = MergeOrder.ASC;
-        }
+        private MergeOrder mergeOrder = MergeOrder.ASC;
 
         public String getType() {
             return type;

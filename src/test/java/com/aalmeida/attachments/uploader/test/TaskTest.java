@@ -1,8 +1,7 @@
 package com.aalmeida.attachments.uploader.test;
 
-import com.aalmeida.attachments.uploader.config.FilterProperties;
-import com.aalmeida.attachments.uploader.tasks.Invoice;
-import com.aalmeida.attachments.uploader.tasks.StorageTask;
+import com.aalmeida.attachments.uploader.properties.FilterProperties;
+import com.aalmeida.attachments.uploader.model.Invoice;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.FileList;
 import org.junit.Assert;
@@ -51,8 +50,8 @@ public class TaskTest {
             Mockito.doReturn(emailFilter).when(invoice).getEmailFilter();
             Mockito.doReturn(System.currentTimeMillis()).when(invoice).getReceivedDate();
 
-            StorageTask storageTask = new StorageTask(drive);
-            storageTask.handleRequest(invoice);
+            /*StorageTask storageTask = new StorageTask(drive);
+            storageTask.handleRequest(invoice);*/
 
             Mockito.when(drive.files().list().execute()).thenReturn(fileList);
 
