@@ -3,7 +3,7 @@ package com.aalmeida.attachments.uploader.events;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 
-public class EventBus {
+public final class EventBus {
 
     private PublishSubject<Object> bus = PublishSubject.create();
 
