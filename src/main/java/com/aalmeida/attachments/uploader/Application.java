@@ -1,17 +1,17 @@
 package com.aalmeida.attachments.uploader;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
 public class Application {
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(Application.class, args);
-        /*
+    private static ConfigurableApplicationContext context;
+
+    public static void main(String[] args) {
         SpringApplicationBuilder builder = new SpringApplicationBuilder(Application.class);
         builder.headless(false);
-        ConfigurableApplicationContexts context = builder.run(args);
-        */
+        context = builder.run(args);
     }
 }

@@ -27,7 +27,7 @@ public class Storage implements Loggable {
         this.drive = pDrive;
     }
 
-    public void upload(final Invoice invoice) throws Exception {
+    public boolean upload(final Invoice invoice) throws Exception {
         final String filename;
         final java.io.File fileToUpload;
 
@@ -66,6 +66,8 @@ public class Storage implements Loggable {
                 final com.google.api.services.drive.model.File uploadedFile = uploadFile(folder.getId(), fileToUpload, filename,
                         invoice.getEmailFilter().getFileMimeType());
                 logger().info("File uploaded. filename={}, file={}", filename, uploadedFile);
+
+                return true;
             } else {
                 if (logger().isTraceEnabled()) {
                     logger().trace("File already exists. filename={}, file={}", filename, file);
@@ -81,6 +83,8 @@ public class Storage implements Loggable {
                 logger().trace("File deleted.");
             }
         }
+
+        return false;
     }
 
     private com.google.api.services.drive.model.File searchFolder(final String folderId) throws IOException {

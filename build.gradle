@@ -61,20 +61,32 @@ jar {
 
 // https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html
 springBoot {
-    executable = true
-    backupSource = false
+    executable = false
+    backupSource = true
 }
 
 test {
     exclude '**/*'
 }
 
+task generateSources(type: Copy) {
+    from 'src/main/java'
+    into "$buildDir/generated-src"
+    filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
+            appName: project.name,
+            appVersion: project.version
+    ])
+}
 task copyService(type: Copy) {
     from configurations.service
     into "$buildDir/dist/"
     rename 'winsw-2.1.2-bin', project.name
 }
-task dist() {
+task dist(type: JavaCompile, dependsOn: generateSources) {
+    source = generateSources.destinationDir
+    classpath = sourceSets.main.compileClasspath
+    destinationDir = file('build/dist')
+
     doFirst {
         delete 'build/dist'
 
@@ -113,5 +125,6 @@ task dist() {
         }
     }
 }
+
 dist.dependsOn copyService
 dist.dependsOn build

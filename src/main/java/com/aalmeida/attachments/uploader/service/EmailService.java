@@ -1,6 +1,7 @@
 package com.aalmeida.attachments.uploader.service;
 
 import com.aalmeida.attachments.uploader.Constants;
+import com.aalmeida.attachments.uploader.events.EventBus;
 import com.aalmeida.attachments.uploader.model.Email;
 import com.aalmeida.attachments.uploader.google.Storage;
 import com.aalmeida.attachments.uploader.logging.Loggable;
@@ -23,6 +24,8 @@ public class EmailService implements Loggable {
     private FilterProperties filterProperties;
     @Autowired
     private Storage storage;
+    @Autowired
+    private EventBus eventBus;
 
     public Observable<Invoice> emailReceived(final String id, final Email email) {
         return Observable.create(s -> {
@@ -63,8 +66,10 @@ public class EmailService implements Loggable {
                                         MDC.put(Constants.Logger.MDC_KEY_TYPE, filter.getType());
 
                                         final Invoice invoice = new Invoice(files, filter, email.getReceivedDate());
-                                        storage.upload(invoice);
-
+                                        boolean fileUploaded = storage.upload(invoice);
+                                        //if (fileUploaded) {
+                                            eventBus.send(invoice);
+                                        //}
                                         s.onNext(invoice);
                                     } catch (Exception e) {
                                         s.onError(e);

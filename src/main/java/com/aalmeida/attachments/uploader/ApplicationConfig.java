@@ -1,6 +1,7 @@
 package com.aalmeida.attachments.uploader;
 
 import com.aalmeida.attachments.uploader.email.EmailMonitor;
+import com.aalmeida.attachments.uploader.events.EventBus;
 import com.aalmeida.attachments.uploader.logging.Loggable;
 import com.aalmeida.attachments.uploader.properties.FilterProperties;
 import com.aalmeida.attachments.uploader.service.EmailService;
@@ -40,5 +41,10 @@ public class ApplicationConfig implements Loggable {
     public EmailMonitor emailMonitor() {
         return new EmailMonitor(emailHost, emailUsername, emailPassword, emailMonitorFolder,
                 emailAttachmentsTemporaryFolder, emailMonitorDaysOld, emailMonitorSubjectPattern);
+    }
+
+    @Bean
+    public EventBus eventBus() {
+        return new EventBus();
     }
 }
