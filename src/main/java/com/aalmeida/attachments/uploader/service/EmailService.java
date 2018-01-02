@@ -67,9 +67,9 @@ public class EmailService implements Loggable {
 
                                         final Invoice invoice = new Invoice(files, filter, email.getReceivedDate());
                                         boolean fileUploaded = storage.upload(invoice);
-                                        //if (fileUploaded) {
+                                        if (fileUploaded) {
                                             eventBus.send(invoice);
-                                        //}
+                                        }
                                         s.onNext(invoice);
                                     } catch (Exception e) {
                                         s.onError(e);
