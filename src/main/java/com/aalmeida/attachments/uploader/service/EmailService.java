@@ -2,9 +2,9 @@ package com.aalmeida.attachments.uploader.service;
 
 import com.aalmeida.attachments.uploader.Constants;
 import com.aalmeida.attachments.uploader.events.EventBus;
-import com.aalmeida.attachments.uploader.model.Email;
 import com.aalmeida.attachments.uploader.google.Storage;
 import com.aalmeida.attachments.uploader.logging.Loggable;
+import com.aalmeida.attachments.uploader.model.Email;
 import com.aalmeida.attachments.uploader.model.Invoice;
 import com.aalmeida.attachments.uploader.model.InvoiceDocument;
 import com.aalmeida.attachments.uploader.properties.FilterProperties;
@@ -13,7 +13,6 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
