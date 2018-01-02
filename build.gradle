@@ -82,7 +82,7 @@ task copyService(type: Copy) {
     into "$buildDir/dist/"
     rename 'winsw-2.1.2-bin', project.name
 }
-task dist(type: JavaCompile, dependsOn: generateSources) {
+task dist(type: JavaCompile) {
     source = generateSources.destinationDir
     classpath = sourceSets.main.compileClasspath
     destinationDir = file('build/dist')
@@ -126,5 +126,6 @@ task dist(type: JavaCompile, dependsOn: generateSources) {
     }
 }
 
+dist.dependsOn generateSources
 dist.dependsOn copyService
 dist.dependsOn build
