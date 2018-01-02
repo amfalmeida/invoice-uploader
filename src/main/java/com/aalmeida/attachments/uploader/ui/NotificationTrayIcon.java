@@ -4,8 +4,6 @@ import com.aalmeida.attachments.uploader.Constants;
 import com.aalmeida.attachments.uploader.events.EventBus;
 import com.aalmeida.attachments.uploader.logging.Loggable;
 import com.aalmeida.attachments.uploader.model.Invoice;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +40,7 @@ public class NotificationTrayIcon extends TrayIcon implements Loggable {
     @PostConstruct
     private void setup() throws AWTException {
         if (!SystemTray.isSupported()) {
+            logger().warn("TrayIcon is not supported");
             return;
         }
         trayIcon.setToolTip(TOOLTIP);
