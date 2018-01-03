@@ -39,6 +39,7 @@ public class EmailService implements Loggable {
                         logger().debug("No filter found.");
                     }
                     s.onComplete();
+                    return;
                 }
 
                 filterProperties.getTypes()
@@ -79,7 +80,6 @@ public class EmailService implements Loggable {
                                     logger().debug("No files matches.");
                                 }
                             }
-                            s.onComplete();
                         });
             } catch (Exception e) {
                 logger().error("Failed to process received email. email={}", email, e);

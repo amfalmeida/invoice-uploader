@@ -9,21 +9,13 @@ import com.aalmeida.utils.FileUtils;
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPMessage;
 import com.sun.mail.util.BASE64DecoderStream;
-import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.mail.Address;
-import javax.mail.BodyPart;
-import javax.mail.FetchProfile;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
+import javax.mail.*;
 import javax.mail.event.MessageCountEvent;
 import javax.mail.event.MessageCountListener;
 import javax.mail.internet.InternetAddress;
@@ -32,11 +24,7 @@ import javax.mail.search.ComparisonTerm;
 import javax.mail.search.ReceivedDateTerm;
 import javax.mail.util.SharedByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class EmailMonitor implements Loggable {
 
@@ -100,7 +88,7 @@ public class EmailMonitor implements Loggable {
                 }
                 for (final Message message : messages) {
                     try {
-                        checkAndProcessEmail(message, subjectPattern);
+                        checkAndProcessEmail(message);
                     } catch (Exception e) {
                         logger().error("Failed to check and process the email.", e);
                     }
@@ -120,11 +108,7 @@ public class EmailMonitor implements Loggable {
             logger().trace("Going to extract data and processing '{}' emails.", messages.length);
         }
         for (final Message message : messages) {
-            try {
-                checkAndProcessEmail(message, subjectPattern);
-            } catch (MessagingException e) {
-                logger().error("Failed to get emails.", e);
-            }
+            checkAndProcessEmail(message);
         }
 
         if (folder instanceof IMAPFolder) {
@@ -146,7 +130,7 @@ public class EmailMonitor implements Loggable {
                 t.interrupt();
             }
         } else {
-            for (;;) {
+            while (true) {
                 Thread.sleep(KEEP_ALIVE_FREQUENCY);
                 folder.getMessageCount();
             }
@@ -158,65 +142,56 @@ public class EmailMonitor implements Loggable {
         folder.close(true);
     }
 
-    private void checkAndProcessEmail(final Message message, final String subjectSearchPattern) throws MessagingException {
-        if (logger().isTraceEnabled()) {
-            logger().trace("Checking and processing email. subject='{}'", message.getSubject());
-        }
-        if (!emailMatch(message, subjectSearchPattern)) {
-            if (logger().isTraceEnabled()) {
-                logger().trace("Email subject doesn't match the search pattern. subject='{}', subjectPattern='{}'",
-                        message.getSubject(), subjectSearchPattern);
-            }
-            return;
-        }
-        if (emailService == null) {
-            if (logger().isWarnEnabled()) {
-                logger().warn("Email service is null.");
-            }
-        }
-        ((IMAPMessage) message).setPeek(true);
-
-        fetchEmailData(message)
-                .subscribeOn(Schedulers.io())
-                .subscribe(email -> {
-                    if (email != null) {
-                        if (logger().isTraceEnabled()) {
-                            logger().trace("Email added to be processed. email='{}'", email);
-                        }
-                        emailService.emailReceived(((IMAPMessage) message).getMessageID(), email)
-                                .subscribeOn(Schedulers.io())
-                                .subscribe(invoice -> {
-                                    if (invoice != null) {
-                                        if (invoice.getFiles() != null) {
-                                            invoice.getFiles().forEach(f -> f.getFile().delete());
-                                        }
-                                        logger().info("Invoice processed invoice={}.", invoice);
-                                    }
-                                }, e -> logger().error("Failed to process email. email={}", email, e));
+    private void checkAndProcessEmail(final Message message) throws IOException, MessagingException {
+            try {
+                if (!emailMatch(message, subjectPattern)) {
+                    if (logger().isTraceEnabled()) {
+                        logger().trace("Email subject doesn't match the search pattern. subject='{}', subjectPattern='{}'",
+                                message.getSubject(), subjectPattern);
                     }
-                }, e -> logger().error("Failed to fetch email.", e));
+                    return;
+                }
+                if (logger().isTraceEnabled()) {
+                    logger().trace("Checking and processing email. subject='{}'", message.getSubject());
+                }
+
+                ((IMAPMessage) message).setPeek(true);
+
+                final Email email = fetchEmailData(message);
+                if (email != null) {
+                    if (logger().isTraceEnabled()) {
+                        logger().trace("Email added to be processed. email='{}'", email);
+                    }
+                    emailService.emailReceived(((IMAPMessage) message).getMessageID(), email)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(invoice -> {
+                                if (invoice != null) {
+                                    if (invoice.getFiles() != null) {
+                                        invoice.getFiles().forEach(f -> f.getFile().delete());
+                                    }
+                                    logger().info("Invoice processed. invoice={}.", invoice);
+                                }
+                            }, e -> logger().error("Failed to process email.", e));
+                }
+            } catch (MessagingException | IOException e) {
+                logger().error("Failed to parse message.", e);
+                throw e;
+            }
     }
 
-    private Observable<Email> fetchEmailData(final Message message) {
-        return Observable.create(s -> {
-            try {
-                final Email email = new Email();
-                email.setSubject(message.getSubject());
-                if (message.getContent() != null && message.getContent() instanceof MimeMultipart) {
-                    final MimeMultipart mp = (MimeMultipart) message.getContent();
-                    email.setAttachments(getAttachments(mp));
-                }
-                email.setFromAddress(getAddress(message.getFrom()));
-                email.setReceivedDate(message.getReceivedDate().getTime());
-                if (logger().isTraceEnabled()) {
-                    logger().trace("Email fetched. email={}", email);
-                }
-                s.onNext(email);
-            } catch (MessagingException | IOException e) {
-                s.onError(e);
-            }
-            s.onComplete();
-        });
+    private Email fetchEmailData(final Message message) throws MessagingException, IOException {
+        final Email email = new Email();
+        email.setSubject(message.getSubject());
+        if (message.getContent() != null && message.getContent() instanceof MimeMultipart) {
+            final MimeMultipart mp = (MimeMultipart) message.getContent();
+            email.setAttachments(getAttachments(mp));
+        }
+        email.setFromAddress(getAddress(message.getFrom()));
+        email.setReceivedDate(message.getReceivedDate().getTime());
+        if (logger().isTraceEnabled()) {
+            logger().trace("Email fetched. email={}", email);
+        }
+        return email;
     }
 
     private boolean emailMatch(final Message message, final String subjectSearchPattern) throws MessagingException {
